@@ -22,15 +22,14 @@
 <div id="header">
   <h1><a href="">CISCOF</a></h1>
 </div>
-<!--close-Header-part-->
+<!--close-Header-part--> 
 <?php if(isset($usuario)) $nomeUsuario = $this->session->userdata('nome'); else $nomeUsuario = ''; ?>
 <!--top-Header-menu-->
 <div id="user-nav" class="navbar navbar-inverse">
-  <ul class="nav">
-   
+  <ul class="nav">   
     <li class=""><a title="" href="<?php echo site_url();?>/mapos/minhaConta"><i class="icon icon-star"></i> <span class="text"> <?php echo $nomeUsuario?> ( Meus Dados)</span></a></li>
-<!--    <li class=""><a title="" href="<?php echo site_url();?>/mine"><i class="icon icon-eye-open"></i> <span class="text"> <?php echo $nomeUsuario?> ( Meus Dados)</span></a></li>-->
-<!--    <li class="pull-right"><a href="https://" target="_blank"><i class="icon icon-asterisk"></i> <span class="text">Versão: <?php echo $this->config->item('app_version'); ?></span></a></li>-->
+    <!--    <li class=""><a title="" href="<?php echo site_url();?>/mine"><i class="icon icon-eye-open"></i> <span class="text"> <?php echo $nomeUsuario?> ( Meus Dados)</span></a></li>-->
+    <!--    <li class="pull-right"><a href="https://" target="_blank"><i class="icon icon-asterisk"></i> <span class="text">Versão: <?php echo $this->config->item('app_version'); ?></span></a></li>-->
     <li class=""><a title="" href="<?php echo site_url();?>/mapos/sair"><i class="icon icon-share-alt"></i> <span class="text">Sair do Sistema</span></a></li>
     
   </ul>

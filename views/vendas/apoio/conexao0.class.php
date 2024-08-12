@@ -16,7 +16,7 @@ Atributos da Classe (CONEXAO)
     private $db_host = 'localhost'; // servidor
     private $db_user = 'root'; // usuario do banco
     private $db_pass = ''; // senha do usuario do banco
-    private $db_name = 'u344891621_doar'; // nome do banco
+    private $db_name = 'u470817199_doar'; // nome do banco
     private $con = false;
     
     

@@ -220,7 +220,8 @@ class Relatorios_model extends CI_Model {
         $this->db->order_by('nome_beneficiario');
         $this->db->order_by('n_protocolo');
         $this->db->order_by('id_presente');
-        return $this->db->get()->result();        
+        $this->db->group_by('id_presente');
+        return $this->db->get()->result();
         
 		return $this->db->query($query)->result();	
     }

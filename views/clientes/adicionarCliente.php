@@ -48,8 +48,8 @@ function formatar_mascara(src, mascara) {
                         <div class="controls">
                               
                           <select  style="width:150px;" id="brProjeto" name="brProjeto">
-                               <option value = "4">BR-214 Planalto</option>             
-                               <option value = "5">BR-214 (Anexo) Janga</option>             
+                               <option value = "4">BR-214 Planalto</option>         
+                               <option value = "5">BR-214 (Anexo) Janga</option>         
                                <option value = "6">BR-542 Bezerros</option>             
                                <option value = "7">BR-549 Catende</option>            
                                <option value = "8">BR-579 Jurema</option>             

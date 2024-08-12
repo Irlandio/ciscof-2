@@ -37,7 +37,7 @@ class Usuarios extends CI_Controller {
 
         $config['base_url'] = base_url().'index.php/usuarios/gerenciar/';
         $config['total_rows'] = $this->usuarios_model->count('usuarios');
-        $config['per_page'] = 10;
+        $config['per_page'] = 15;
         $config['next_link'] = 'Próxima';
         $config['prev_link'] = 'Anterior';
         $config['full_tag_open'] = '<div class="pagination alternate"><ul>';
@@ -152,6 +152,49 @@ class Usuarios extends CI_Controller {
         } else
         { 
 
+        $tiposPermissoes = $this->usuarios_model->get2('permissoes_tipos');
+        $permissao_ID = $this->input->post('permissoes_id'); //ID DA PERMISSÃO INDIVIDUAL
+
+        foreach ($tiposPermissoes as $tp) {
+            $permiss["$tp->nomePermissao"] = $this->input->post("$tp->nomePermissao");
+        }
+        $permiss = serialize($permiss);
+        $idUsuario = $this->input->post('idUsuarios');
+        $this->load->model('permissoes_model');
+        $permissao = $this->usuarios_model->getByIdPermissao($permissao_ID);
+        $addperm = $edtperm = '';
+        if($permissao->nome != $idUsuario)
+        {
+            $permissoes_id = $idUsuario;
+            $data = array(
+                'nome' => $idUsuario,
+                'permissoes' => $permiss,
+                'data' => date('Y-m-d'),
+                'situacao' => 1
+            );
+            // $permissaoNEW = $this->usuarios_model->getByIdPermissao($idUsuario,'nome');
+            // $permissaoNEWid = $permissaoNEW->idPermissao;
+            // var_dump($permissaoNEW);
+            // die();
+            if ($this->usuarios_model->add('permissoes', $data) == TRUE) {
+                $addperm = 'Permissão adicionada com sucesso!';
+                $permissaoNEW = $this->usuarios_model->getByIdPermissao($idUsuario,'nome');
+                $permissaoNEWid = $permissaoNEW->idPermissao;
+            }
+        }else
+        {
+            $permissoes_id = $permissao_ID;
+            $data = array(
+                'permissoes' => $permiss,
+                'situacao' => 1
+            );
+            if ($this->usuarios_model->edit('permissoes', $data, 'idPermissao', $permissao->idPermissao ) == TRUE) {
+                $edtperm = 'Permissão editada com sucesso!';
+                $permissaoNEWid = $permissao->idPermissao;
+
+            } 
+        }
+        // NÃO EXCLUIR O AMIN SUPER
             if ($this->input->post('idUsuarios') == 1 && $this->input->post('situacao') == 0)
             {
                 $this->session->set_flashdata('error','O usuário super admin não pode ser desativado!');
@@ -180,7 +223,8 @@ class Usuarios extends CI_Controller {
                         'conta_Usuario' => $this->input->post('telefone'),
                         'celular' => $this->input->post('celular'),
                         'situacao' => $this->input->post('situacao'),
-                        'permissoes_id' => $this->input->post('permissoes_id')
+                        'permissoes_id' => $permissaoNEWid,
+                        'permissoes_Geral' => $this->input->post('permissoes_Geral')
                 );
             }  
 
@@ -199,15 +243,14 @@ class Usuarios extends CI_Controller {
                         'conta_Usuario' => $this->input->post('telefone'),
                         'celular' => $this->input->post('celular'),
                         'situacao' => $this->input->post('situacao'),
-                        'permissoes_id' => $this->input->post('permissoes_id')
+                        'permissoes_id' => $permissaoNEWid,
+                        'permissoes_Geral' => $this->input->post('permissoes_Geral')
                 );
 
-            }  
-
-           
+            }           
 			if ($this->usuarios_model->edit('usuarios',$data,'idUsuarios',$this->input->post('idUsuarios')) == TRUE)
 			{
-                $this->session->set_flashdata('success','Usuário editado com sucesso!');
+                $this->session->set_flashdata('success','Usuário editado com sucesso!'.$addperm.' '.$edtperm);
 				redirect(base_url().'index.php/usuarios/editar/'.$this->input->post('idUsuarios'));
 			}
 			else
@@ -216,12 +259,25 @@ class Usuarios extends CI_Controller {
 
 			}
 		}
-
 		$this->data['result'] = $this->usuarios_model->getById($this->uri->segment(3));
-        $this->load->model('permissoes_model');
-        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes','permissoes.idPermissao,permissoes.nome'); 
+
+		$idPermissao = $this->data['result']->permissoes_id;
+		$permissao_IDGeral = $this->data['result']->permissoes_Geral;                
         
+        $this->data['arrpermissoes'] = $this->usuarios_model->getByIdPermissao($idPermissao);
+        $this->data['arrpermissao_Geral'] = $this->usuarios_model->getByIdPermissao($permissao_IDGeral);
+        $this->data['arrpermissoesUSER'] = $this->usuarios_model->getByIdPermissao($this->session->userdata('permissao')); 
+        
+        // var_dump($this->data['arrpermissoes']); echo '<br>';
+        // var_dump($this->data['permissao_Geral']); echo '<br>';
+        // var_dump($this->data['arrpermissoesUSER']); 
+        // die();
+        // var_dump($this->data['permissao_Geral']); 
+        // die();
+        $this->load->model('permissoes_model');
+        $this->data['permissoesID'] = $this->permissoes_model->getActive('permissoes','permissoes.idPermissao,permissoes.nome'); 
         $this->data['result_caixas'] = $this->usuarios_model->get2('caixas');
+        $this->data['tiposPermissoes'] = $this->usuarios_model->get2('permissoes_tipos');
 
 		$this->data['view'] = 'usuarios/editarUsuario';
         $this->load->view('tema/topo',$this->data);

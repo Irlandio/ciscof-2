@@ -13,7 +13,7 @@ class Vendas_model extends CI_Model {
     }
 
    
-    function get($table,$fields,$where='',$perpage=0,$start=0,$one=false,$array='array'){
+    function get($table,$fields,$contaU,$where='',$perpage=0,$start=0,$one=false,$array='array'){
         
         $lista_clientes = array();
         if($where){
@@ -30,6 +30,7 @@ class Vendas_model extends CI_Model {
         }
         $this->db->select($fields.', caixas.nome_caixa, caixas.id_caixa');
         $this->db->from($table);
+        $this->db->where_in('aenpfin.conta',$contaU);
         $this->db->limit($perpage,$start);
         $this->db->join('caixas', 'caixas.id_caixa = '.$table.'.conta');
         $this->db->order_by('id_fin','desc');

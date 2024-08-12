@@ -373,7 +373,7 @@
 							echo '<tr rowspan="3" bgcolor="#3a2da3" style="font-size:70%; text-align: center; color: #f6f6fa" ><th  rowspan="3"> Registro</th>';	
 							echo '<th rowspan="3">Data</th>';	
 							echo '<th  rowspan="3">Conta</th>';	
-							echo '<th  rowspan="3">Forma ou cheque</th>';	
+							echo '<th  rowspan="3">Forma de Pagamento</th>';	
 							echo '<th  rowspan="3"> Área </th> <th rowspan="3">Descrição</th>';	
 							echo '<th width="150" rowspan="3" colspan="2" > Histórico</th>';	
 							echo '<th width="20" rowspan="3"  > Despesa referente a</th>';	
@@ -398,6 +398,12 @@
 						
                     $descricao = "";
                        
+                    switch ($l->tipo_Pag ) 
+                    {						 
+                        case "trans":	 $tipo_Pag = "Transferência"; break;  
+                        case "cheq":	 $tipo_Pag = "Cheque"; break;  
+                    }	
+                       
                         foreach ($res_CodComp as $rCodComp) 
                         { 
                             if($l->$adm == $rCodComp-> cod_Comp){ 
@@ -412,7 +418,7 @@
 						$html .=  '<td>' . $l->id_fin . '</td>';                      
 						$html .=  '<td bgcolor="#dbdaf7">' . $datX . '</td>';                      
 						$html .=  '<td bgcolor="#'.$cor.'">' .$l->$adm. '</strong></td>';
-						$html .=  '<td bgcolor="#dbdaf7">' .$l->num_Doc_Banco . '</td>';
+						$html .=  '<td bgcolor="#dbdaf7">' .$tipo_Pag . '</td>';
                         $html .=  ' <td>'.$admAr.'</td> <td>'.$descricao.'</td>';
 						$html .=  '<td bgcolor="#dbdaf7"  colspan="2" >' .$l->historico . '</td>
                         <td bgcolor="#dbdaf7" >'.$sede.'</td>';
@@ -431,7 +437,7 @@
 						echo '<td  > ' . $l->id_fin . ' </td>';                      
 						echo '<td  heigth="100" bgcolor="#dbdaf7"  > ' . $datX . ' </td>';                      
 						echo '<td  heigth="100" bgcolor="'.$cor.'"> ' .$l->$adm. '</strong> </td>';
-						echo '<td  heigth="100" bgcolor="#dbdaf7"> ' .$l->num_Doc_Banco . ' </td>';
+						echo '<td  heigth="100" bgcolor="#dbdaf7"> ' .$tipo_Pag . ' </td>';
                         echo ' <td  heigth="100"> '.$admAr.' </td> <td> '.$descricao.' </td>';
                         
                         $ok = 0;

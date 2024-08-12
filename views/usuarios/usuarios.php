@@ -62,11 +62,15 @@ if(!$results){?>
     <tbody>
         <?php foreach ($results as $r) {
            
+           if($r->situacao == 1) {$status = "Ativo"; $corStt = 'Blue';}
+           if($r->situacao == 0) {$status = "Inativo"; $corStt = '#ada9a1'; }
+
            if($r->nome_caixa == null) {$conta = "Todas contas";
             }else {$conta = $r->nome_caixa;}
             echo '<tr>';
             echo '<td>'.$r->idUsuarios.'</td>';
-            echo '<td>'.$r->nome.' | '.$r->email.'</td>';
+                    echo '<td><font  color = '.$corStt.' >
+                    <a href="'.base_url().'index.php/usuarios/editar/'.$r->idUsuarios.'"  title="Editar Usuário">'.$r->nome.'</a> | '.$r->email.'</font></td>';
             echo '<td>'.$r->cpf.'</td>';
             echo '<td>'.$conta.'</td>';
             echo '<td></td>';

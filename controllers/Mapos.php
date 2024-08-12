@@ -12,6 +12,7 @@ class Mapos extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('mapos_model','',TRUE);
+        $_SESSION['DATA_FIM_BR518'] = '2022-11-30';
         
     }
 
@@ -19,6 +20,7 @@ class Mapos extends CI_Controller {
         if( (!session_id()) || (!$this->session->userdata('logado'))){
             redirect('mapos/login');
         }
+        $this->data['logsSessions'] = $this->mapos_model->getlogsSessions();
         $this->data['usuario'] = $this->mapos_model->getById($this->session->userdata('id'));
         $this->data['ordens'] = $this->mapos_model->getOsAbertas();
         $this->data['lancamentos'] = $this->mapos_model->getLancamentos('aenpfin');
@@ -116,10 +118,26 @@ class Mapos extends CI_Controller {
                 $this->encryption->initialize(array('driver' => 'mcrypt'));
                 $password_stored =  $this->encryption->decrypt($user->senha);
 
-//                if($password == "beca"){
-                if($password == $password_stored){
+                if($password == $password_stored)
+                // if($password == 'beca')
+                {
                     $session_data = array('nome' => $user->nome, 'email' => $user->email, 'id' => $user->idUsuarios,'contaUser' => $user->conta_Usuario,'permissao' => $user->permissoes_id , 'logado' => TRUE);
                     $this->session->set_userdata($session_data);
+
+                    $caixas = $this->Mapos_model->get2('caixas', 'id_caixa AS id, nome_caixa AS nome, banco, agencia, n_conta', 'id_caixa');
+                    
+                    foreach ($caixas as $chave)
+                    {
+                        $contas['contas_qtd'] = count($caixas);
+                        $chaveConta = $chave->id;
+                        foreach ($chave as $key => &$value)
+                        {
+                            $contas['conta'.$chaveConta.'_'.$key] = $value;
+                        }
+                    }
+                    
+                    $this->session->set_dadosContas($contas);
+                    
                     $json = array('result' => true);
                     echo json_encode($json);
                     
@@ -176,7 +194,7 @@ class Mapos extends CI_Controller {
         }
 
         if(!$this->permission->checkPermission($this->session->userdata('permissao'),'cEmitente')){
-           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.');
+           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.'.__LINE__);
            redirect(base_url());
         }
 
@@ -193,8 +211,8 @@ class Mapos extends CI_Controller {
             redirect('mapos/login');
         }
 
-        if(!$this->permission->checkPermission($this->session->userdata('permissao'),'cEmitente')){
-           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.');
+        if(!$this->permission->checkPermission($this->session->userdata('permissao'),'vVenda')){
+           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.'.__LINE__);
            redirect(base_url());
         }
 
@@ -234,7 +252,7 @@ class Mapos extends CI_Controller {
         }
 
         if(!$this->permission->checkPermission($this->session->userdata('permissao'),'cEmitente')){
-           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.');
+           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.'.__LINE__);
            redirect(base_url());
         }
 
@@ -292,7 +310,7 @@ class Mapos extends CI_Controller {
         }
 
         if(!$this->permission->checkPermission($this->session->userdata('permissao'),'cEmitente')){
-           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.');
+           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.'.__LINE__);
            redirect(base_url());
         }
 
@@ -350,7 +368,7 @@ class Mapos extends CI_Controller {
         }
 
         if(!$this->permission->checkPermission($this->session->userdata('permissao'),'cEmitente')){
-           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.');
+           $this->session->set_flashdata('error','Você não tem permissão para configurar emitente.'.__LINE__);
            redirect(base_url());
         }
 
@@ -374,6 +392,41 @@ class Mapos extends CI_Controller {
         else{
             $this->session->set_flashdata('error','Ocorreu um erro ao tentar alterar as informações.');
             redirect(base_url().'index.php/mapos/emitente');
+        }
+
+    }
+
+    public function editarFoto(){
+        
+        if( (!session_id()) || (!$this->session->userdata('logado'))){
+            redirect('mapos/login');
+        }
+
+        if(!$this->permission->checkPermission($this->session->userdata('permissao'),'eVenda')){
+           $this->session->set_flashdata('error','Você não tem permissão para configurar Foto.');
+           redirect(base_url());
+        }
+
+        $id = $this->input->post('id');
+        if($id == null || !is_numeric($id)){
+           $this->session->set_flashdata('error','Ocorreu um erro ao tentar alterar a Foto.');
+           redirect(base_url().'index.php/mapos/minhaConta'); 
+        }
+        $this->load->helper('file');
+      //  delete_files(FCPATH .'assets/uploads/');
+
+        $image = $this->do_upload();
+        $logo = base_url().'assets/uploads/'.$image;
+
+        $retorno = $this->mapos_model->editFoto($id, $logo);
+        if($retorno){
+
+            $this->session->set_flashdata('success','As informações foram alteradas com sucesso.');
+            redirect(base_url().'index.php/mapos/minhaConta');
+        }
+        else{
+            $this->session->set_flashdata('error','Ocorreu um erro ao tentar alterar as informações.');
+            redirect(base_url().'index.php/mapos/minhaConta');
         }
 
     }

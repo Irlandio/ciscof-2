@@ -1,5 +1,5 @@
 
-    <style>
+<style>
 .badgebox
 {
     opacity: 0;
@@ -118,7 +118,7 @@
                     // var_dump($_POST);
                     $contaA = null !== ( $_POST["tab"])  ?   $_POST["tab"]  : '';
                     $contaA = null !== ( $_POST["tipop"])  ?   $_POST["tipop"]  : '';
-          // **SE FOR ENTRADA E 518 A CONTA SERÁ 214
+                    // **SE FOR ENTRADA E 518 A CONTA SERÁ 214
                     $contt = null !== ( $_POST["conta"])  ?   $_POST["conta"]  : '';
                     if($contt != '')
                     {
@@ -149,21 +149,21 @@
                         if($tipoES == 0) $tipoEnt_Sai = "Despesa";
                         else if($tipoES == 1) $tipoEnt_Sai = "Receita";
 
-					switch ($conta)
-					{
-						case 0:	$contaNome = "Retorne a pagina anterior o selecione uma conta para lançamento";	break;    
-						case 1:	$contaNome = "IEADALPE - 1444-3";	break;    
-						case 2:	$contaNome = "22360-3";	break;  
-						case 3:	$contaNome = "ILPI";	break;  
-						case 4:	$contaNome = "BR0214";	break;  
-						case 5:	$contaNome = "BR0214 (Anexo)";	break;  
-						case 6:	$contaNome = "BR0542";	break;  
-						case 7:	$contaNome = "BR0549";	break;  
-						case 8:	$contaNome = "BR0579";	break;  
-						case 9:	$contaNome = "BB 28965-5";	break;  
-						case 10:$contaNome = "CEF 1948-4";	break; 				
-					}
-                        
+                    $contaNome = $conta != 0 ? $this->session->userdata('conta'.$conta.'_nome') : "Retorne a pagina anterior o selecione uma conta para lançamento";
+					// switch ($conta)
+					// {
+					// 	case 0:	$contaNome = "Retorne a pagina anterior o selecione uma conta para lançamento";	break;    
+					// 	case 1:	$contaNome = "IEADALPE - 1444-3";	break;    
+					// 	case 2:	$contaNome = "22360-3";	break;  
+					// 	case 3:	$contaNome = "ILPI";	break;  
+					// 	case 4:	$contaNome = "BR0214";	break;  
+					// 	case 5:	$contaNome = "BR0214 (Anexo)";	break;  
+					// 	case 6:	$contaNome = "BR0542";	break;  
+					// 	case 7:	$contaNome = "BR0549";	break;  
+					// 	case 8:	$contaNome = "BR0579";	break;  
+					// 	case 9:	$contaNome = "BB 28965-5";	break;  
+					// 	case 10:$contaNome = "CEF 1948-4";	break; 				
+					// } 
                         
 					$ano = date("Y");			
 					$mes = date("m");
@@ -536,7 +536,7 @@ if (!$resultUltimo || $resultUltimo == null )
     //****** ENTRADA DE presentes especiais
                            if($tipoES == ( 1))
                             {
-//                               var_dump($_SESSION['textoSomatorioItens']);
+                                //   var_dump($_SESSION['textoSomatorioItens']);
                              //  $qtd_presentes = $_POST["qtd_presentes"];
                                 ?>
                              <input name ="qtd_presentes"  type="hidden" value="<?php echo $qtd_presentes ?>" />
@@ -676,144 +676,148 @@ if (!$resultUltimo || $resultUltimo == null )
                                         
                                 <tr> <td></td>  <td>VALOR TOTAL</td> <td>
                                 <span class="style1">* R$ </span>
-                        <input name="valtotal" readonly><br>
-                        </td> 
-                                </tr>
-                        </table>
-                            <?php 
-                               $textoSomatorioItens = isset($_SESSION['textoSomatorioItens']) ? $_SESSION['textoSomatorioItens'] : 'NADA';
-                               $textoSomatorio =  NULL !== ($_SESSION['textoSomatorio']) ? $_SESSION['textoSomatorio'] : 'NADA';
-                               if($textoSomatorio != '')
-                               {
-                        ?>
+                                <input name="valtotal" readonly><br>
+                                </td> 
+                                        </tr>
+                                </table>
+                                    <?php 
+                                    $textoSomatorioItens = isset($_SESSION['textoSomatorioItens']) ? $_SESSION['textoSomatorioItens'] : 'NADA';
+                                    $textoSomatorio =  NULL !== ($_SESSION['textoSomatorio']) ? $_SESSION['textoSomatorio'] : 'NADA';
+                                    if($textoSomatorio != '')
+                                    {
+                                ?>
                                  
                                          <div class="span3" ><?php echo $textoSomatorioItens; ?> </div>
                                          <div class="span7" ><?php echo $textoSomatorio; ?></div>
                                      
-                            <?php   
+                                <?php   
                                }
                             }else 
-    //****** sAÍDA DE presentes especiais
+                            //****** sAÍDA DE presentes especiais
                                if($tipoES == ( 0))
                                     {
-                                    if($nivel < 4)
+                                        // if($nivel < 4)
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'),'vProduto'))
                                     {
-                                    require_once 'conexao.class.php';		
-                                    $con = new Conexao();		 
-                                    $con->connect(); $conex = $_SESSION['conex']; 
-                                    //id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
-                                        $presentes_abertos = mysqli_query($conex, 'SELECT * FROM presentes_especiais, aenpfin
-                                                    WHERE id_fin = id_entrada and  id_saida like 0 and  conta like '.$conta.' ORDER BY dataFin');
+                                        // require_once 'conexao.class.php';		
+                                        // $con = new Conexao();		 
+                                        // $con->connect(); $conex = $_SESSION['conex']; 
+                                        // //id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
+                                        // $sql = 'SELECT * FROM presentes_especiais, aenpfin
+                                        //                 WHERE id_fin = id_entrada and  id_saida like 0 and  conta like '.$conta.' ORDER BY dataFin';
+                                        //     $presentes_abertos = mysqli_query($conex, $sql);
+                                    if (empty($pre)  ) 
+                                            {	echo "<center><font color = red >Nao existem registros de presentes especiais!</font>";
+                                            }
+                                            
+                                                echo '<table border=1 bgcolor="LightGray" width="70%">';
+                                                echo '<thead bgcolor="#BDBDBD"><tr><th colspan="8" bgcolor="white" align="center" >Presentes especiais em aberto conta '.$contaNome.' </th>  </tr>';
 
-                                    if (mysqli_num_rows($presentes_abertos) == 0 ) 
-                                        {	echo "<center><font color = red >Nao existem registros de presentes especiais!</font>";
-                                        }
-                                        
-                                            echo '<table border=1 bgcolor="LightGray" width="70%">';
-                                            echo '<thead bgcolor="#BDBDBD"><tr><th colspan="8" bgcolor="white" align="center" >Presentes especiais em aberto conta '.$contaNome.' </th>  </tr>';
-
-                                           // echo '<th> </th>';	
-                                            echo '<th>Nº</th>';	
-                                            echo '<th>Conta</th>';	
-                                            echo '<th>BR</th>';	
-                                            echo '<th>Nome Beneficiário</th>';	
-                                            echo '<th>Protocolo</th>';	
-                                            echo '<th>Data</th>';
-                                            echo '<th>Total R$</th>';	
-                                            echo '<th>Valor pendente R$</th>';	
-                                            echo '</tr></thead>';
-                                            echo '<tbody style="font-size:80%">';
-                                            $total = 0;	$inicio = 1;
-                                //	while ($rows_presentes = mysqli_fetch_assoc($presentes_abertos)) 
-                                        $contaY = "a"; 
-                                $data_2Mes = date('Y-m-d', strtotime("-60 day", strtotime( date('Y-m-d'))));
-                                $data_6Mes = date('Y-m-d', strtotime("-180 day", strtotime( date('Y-m-d'))));
-//                                 foreach ($pre as $rpres)    
-//                                 {
-//                                     echo '<br>';
-//                                     var_dump($rpres);
-//                                 }
-                                 foreach ($pre as $rpres)    
-                                 {
-                                    if(($rpres->dataFin > $data_6Mes) && (($rpres->dataFin > $data_2Mes) || ($rpres->valor_pendente > 3 && $rpres->dataFin <= $data_2Mes) ))
-                                    {	
-                                     
-                                     switch ($rpres->projeto) 
+                                            // echo '<th> </th>';	
+                                                echo '<th>Nº</th>';	
+                                                echo '<th>Conta</th>';	
+                                                echo '<th>BR</th>';	
+                                                echo '<th>Nome Beneficiário</th>';	
+                                                echo '<th>Protocolo</th>';	
+                                                echo '<th>Data</th>';
+                                                echo '<th>Total R$</th>';	
+                                                echo '<th>Valor pendente R$</th>';	
+                                                echo '</tr></thead>';
+                                                echo '<tbody style="font-size:80%">';
+                                                $total = 0;	$inicio = 1;
+                                            //	while ($rows_presentes = mysqli_fetch_assoc($presentes_abertos)) 
+                                                    $contaY = "a"; 
+                                            $data_3Mes = date('Y-m-d', strtotime("-90 day", strtotime( date('Y-m-d'))));
+                                            $data_6Mes = date('Y-m-d', strtotime("-180 day", strtotime( date('Y-m-d'))));
+                                            $data_anoAtual = date('Y-m-d', strtotime( date('Y-01-01')));
+                                            // foreach ($pre as $rpres)    
+                                            // {
+                                            //     echo '<br>';
+                                            //     var_dump($rpres);
+                                            // }
+                                        foreach ($pre as $rpres)    
                                         {
-                                            case 1:	$contaN = "IEADALPE - 1444-3"; break;    
-                                            case 2:	$contaN = "22360-3"; break;  
-                                            case 3:	$contaN = "ILPI"; break;  
-                                            case 4:	$contaN = "BR214"; break;  
-                                            case 5:	$contaN = "BR518"; break;  
-                                            case 6:	$contaN = "BR542"; break;  
-                                            case 7:	$contaN = "BR549"; break;  
-                                            case 8:	$contaN = "BR579"; break;  
-                                            case 9:	$contaN = "BB 28965-5"; break;  
-                                            case 10:$contaN = "CEF 1948-4"; break;
-                                            case 99:$contaN = "Todas contas"; break;  				
-                                        }		
-                                            $data_Ch= implode('/',array_reverse(explode('-',$rpres->dataFin)));
-                                            $val_Ch= number_format($rpres->valor_entrada, 2, ',', '.');
-                                            $valor_pendente= number_format($rpres->valor_pendente, 2, ',', '.');
+                                            if((($rpres->dataFin > $data_6Mes) || ($rpres->dataFin > $data_anoAtual) )&& (($rpres->valor_pendente > 3 && $rpres->dataFin >= $data_3Mes)) && $rpres->projeto == $contaPres)
+                                            {	
+                                            
+                                                $contaN = $conta != 99 ? $this->session->userdata('conta'.$conta.'_nome').' XX' : "Todas contas";
+                                                // switch ($rpres->projeto) 
+                                                //     {
+                                                //         case 1:	$contaN = "IEADALPE - 1444-3"; break;    
+                                                //         case 2:	$contaN = "22360-3"; break;  
+                                                //         case 3:	$contaN = "ILPI"; break;  
+                                                //         case 4:	$contaN = "BR214"; break;  
+                                                //         case 5:	$contaN = "BR518"; break;  
+                                                //         case 6:	$contaN = "BR542"; break;  
+                                                //         case 7:	$contaN = "BR549"; break;  
+                                                //         case 8:	$contaN = "BR579"; break;  
+                                                //         case 9:	$contaN = "BB 28965-5"; break;  
+                                                //         case 10:$contaN = "CEF 1948-4"; break;
+                                                //         case 99:$contaN = "Todas contas"; break;  				
+                                                //     }
+                                                $data_Ch= implode('/',array_reverse(explode('-',$rpres->dataFin)));
+                                                $val_Ch= number_format($rpres->valor_entrada, 2, ',', '.');
+                                                $valor_pendente= number_format($rpres->valor_pendente, 2, ',', '.');
 
-                                            if ($contaY == $contaN)
-                                            {//id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
-                                                if ($val_Ch <> $valor_pendente)
-                                                {	echo '<tr bgcolor="Yellow">'; $presente_pendente = "true";
-                                                }	else 	echo '<tr bgcolor="#CEF6D8">';
-
-                                                echo '<td><label  class="btn btn-default" submit>'.$rpres->id_presente.'<input  name="id_presentes" type="radio" value= "'.$rpres->id_presente.'"  class="badgebox" style="margin-top:15px;" ><span class="badge" >&check;</span></label></td> ';
-
-                                                echo '<td>'.$contaN.'</td>';
-                                                echo '<td>'.$rpres->n_beneficiario.' </td> <td>'.$rpres->nome_beneficiario.'</td>';
-                                                echo '<td>'.$rpres->n_protocolo.'</td> <td align="right" valign=bottom >'.$data_Ch.'</td> ';
-                                                echo '<td align="right" valign=bottom >'.$val_Ch.'</td>';								
-                                                echo '<td align="right" valign=bottom >'.$valor_pendente.'</td></tr>';								
-                                                $total = $total + $rpres->valor_pendente;
-                                            }else
-                                            {
-                                                if ($inicio == 0)
-                                                {$val_ChT= number_format($total, 2, ',', '.');
-                                                    echo '<tr  bgcolor="#CEF6D8">';
-
-                                                    echo '<td></td> <td></td> <td></td> <td></td> <td></td> <td colspan="2">Total a compensar R$ </td>';	
-                                                    echo '<td bgcolor="green"  ><h4 align="right" valign=bottom >',$val_ChT.'</h4></td></tr>';
-
+                                                if ($contaY == $contaN)
+                                                {//id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
                                                     if ($val_Ch <> $valor_pendente)
-                                                {	echo '<tr bgcolor="Yellow">'; $presente_pendente = "true";
-                                                }	else 	echo '<tr bgcolor="#CEF6D8">';
+                                                    {	echo '<tr bgcolor="Yellow">'; $presente_pendente = "true";
+                                                    }	else 	echo '<tr bgcolor="#CEF6D8">';
 
-                                                    
-                                                echo '<td><label  class="btn btn-default" submit>'.$rpres->id_presente.'<input  name="id_presentes" type="radio" value= "'.$rpres->id_presente.'"  class="badgebox" style="margin-top:15px;" ><span class="badge" >&check;</span></label></td> ';
+                                                    echo '<td><label  class="btn btn-default" submit>'.$rpres->id_presente.'<input  name="id_presentes" type="radio" value= "'.$rpres->id_presente.'"  class="badgebox" style="margin-top:15px;" ><span class="badge" >&check;</span></label></td> ';
 
-                                                echo '<td>'.$contaN.'</td>';
-                                                echo '<td>'.$rpres->n_beneficiario.'</td> <td>'.$rpres->nome_beneficiario.'</td>';
-                                                echo '<td>'.$rpres->n_protocolo.'</td> <td align="right" valign=bottom >'.$data_Ch.'</td> ';
+                                                    echo '<td>'.$contaN.'</td>';
+                                                    echo '<td>'.$rpres->n_beneficiario.' </td> <td>XXXA  '.$rpres->nome_beneficiario.'</td>';
+                                                    echo '<td>'.$rpres->n_protocolo.'</td> <td align="right" valign=bottom >'.$data_Ch.'</td> ';
                                                     echo '<td align="right" valign=bottom >'.$val_Ch.'</td>';								
-                                                echo '<td align="right" valign=bottom >'.$valor_pendente.'</td></tr>';								
+                                                    echo '<td align="right" valign=bottom >'.$valor_pendente.'</td></tr>';								
                                                     $total = $total + $rpres->valor_pendente;
                                                 }else
-                                                {	 echo '<tr  bgcolor="#CEF6D8">';
-                                                   
-                                                echo '<td><label  class="btn btn-default" submit>'.$rpres->id_presente.'<input  name="id_presentes" type="radio" value= "'.$rpres->id_presente.'"  class="badgebox" style="margin-top:15px;" ><span class="badge" >&check;</span></label></td> ';
+                                                {
+                                                    if ($inicio == 0)
+                                                    {$val_ChT= number_format($total, 2, ',', '.');
+                                                        echo '<tr  bgcolor="#CEF6D8">';
 
-                                                echo '<td>'.$contaN.'</td>';
-                                                echo '<td>'.$rpres->n_beneficiario.'</td> <td>'.$rpres->nome_beneficiario.'</td>';
-                                                echo '<td>'.$rpres->n_protocolo.'</td> <td align="right" valign=bottom >'.$data_Ch.'</td> ';
-                                                    echo '<td align="right" valign=bottom >'.$val_Ch.'</td>';								
-                                                echo '<td align="right" valign=bottom >'.$valor_pendente.'</td></tr>';								
-                                                    $total = $total + $rpres->valor_pendente;
-                                                    $inicio = 0;
-                                                }
-                                            }	
-                                            $inicio = 0;
-                                            $contaY = $contaN;
-                                    } 	}
-                                        $val_Ch= number_format($total, 2, ',', '.');
-                                        echo '<td></td> <td></td> <td></td>  <td></td> <td></td> <td colspan="2">Total a compensar R$ </td>';	
-                                        echo '<td bgcolor="Yellow"  ><h4 align="right" valign=bottom >',$val_Ch.'</h4></td></tr>';
-                                        echo '</tbody></table>';//caixa,cod_compassion,cod_assoc,num_Doc,historico,dataFin,valorFin,ent_Sai, cadastrante
-                                    }	
+                                                        echo '<td></td> <td></td> <td></td> <td></td> <td></td> <td colspan="2">Total a compensar R$ </td>';	
+                                                        echo '<td bgcolor="green"  ><h4 align="right" valign=bottom >',$val_ChT.'</h4></td></tr>';
+
+                                                        if ($val_Ch <> $valor_pendente)
+                                                    {	echo '<tr bgcolor="Yellow">'; $presente_pendente = "true";
+                                                    }	else 	echo '<tr bgcolor="#CEF6D8">';
+
+                                                        
+                                                    echo '<td><label  class="btn btn-default" submit>'.$rpres->id_presente.'<input  name="id_presentes" type="radio" value= "'.$rpres->id_presente.'"  class="badgebox" style="margin-top:15px;" ><span class="badge" >&check;</span></label></td> ';
+
+                                                    echo '<td>'.$contaN.'</td>';
+                                                    echo '<td>'.$rpres->n_beneficiario.'</td> <td>XXXA  '.$rpres->nome_beneficiario.'</td>';
+                                                    echo '<td>'.$rpres->n_protocolo.'</td> <td align="right" valign=bottom >'.$data_Ch.'</td> ';
+                                                        echo '<td align="right" valign=bottom >'.$val_Ch.'</td>';								
+                                                    echo '<td align="right" valign=bottom >'.$valor_pendente.'</td></tr>';								
+                                                        $total = $total + $rpres->valor_pendente;
+                                                    }else
+                                                    {	 echo '<tr  bgcolor="#CEF6D8">';
+                                                    
+                                                    echo '<td><label  class="btn btn-default" submit>'.$rpres->id_presente.'<input  name="id_presentes" type="radio" value= "'.$rpres->id_presente.'"  class="badgebox" style="margin-top:15px;" ><span class="badge" >&check;</span></label></td> ';
+
+                                                    echo '<td>'.$contaN.'</td>';
+                                                    echo '<td>'.$rpres->n_beneficiario.'</td> <td>XXXA  '.$rpres->nome_beneficiario.'</td>';
+                                                    echo '<td>'.$rpres->n_protocolo.'</td> <td align="right" valign=bottom >'.$data_Ch.'</td> ';
+                                                        echo '<td align="right" valign=bottom >'.$val_Ch.'</td>';								
+                                                    echo '<td align="right" valign=bottom >'.$valor_pendente.'</td></tr>';								
+                                                        $total = $total + $rpres->valor_pendente;
+                                                        $inicio = 0;
+                                                    }
+                                                }	
+                                                $inicio = 0;
+                                                $contaY = $contaN;
+                                            } 	
+                                        }
+                                            $val_Ch= number_format($total, 2, ',', '.');
+                                            echo '<td></td> <td></td> <td></td>  <td></td> <td></td> <td colspan="2">Total a compensar R$ </td>';	
+                                            echo '<td bgcolor="Yellow"  ><h4 align="right" valign=bottom >',$val_Ch.'</h4></td></tr>';
+                                            echo '</tbody></table>';//caixa,cod_compassion,cod_assoc,num_Doc,historico,dataFin,valorFin,ent_Sai, cadastrante
+                                        }	
                                     }	
                             }
 
@@ -1292,19 +1296,21 @@ if (!$resultUltimo || $resultUltimo == null )
     //****** sAÍDA DE presentes especiais
                                if($tipoES == ( 0))
                                     {
-                                    if($nivel < 4)
+                                        // if($nivel < 4)
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'),'vProduto'))
                                     {
-                                    require_once 'conexao.class.php';		
-                                    $con = new Conexao();		 
-                                    $con->connect(); $conex = $_SESSION['conex']; 
-                                    //id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
-                                        $presentes_abertos = mysqli_query($conex, 'SELECT * FROM presentes_especiais, aenpfin
-                                                    WHERE id_fin = id_entrada and  id_saida like 0 and  conta like '.$conta.' ORDER BY dataFin');
+                                        
+                                    // require_once 'conexao.class.php';		
+                                    // $con = new Conexao();		 
+                                    // $con->connect(); $conex = $_SESSION['conex']; 
+                                    // //id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
+                                    // $sql = 'SELECT * FROM presentes_especiais, aenpfin
+                                    // WHERE id_fin = id_entrada and  id_saida like 0 and  conta like '.$conta.' ORDER BY dataFin';
+                                    // $presentes_abertos = mysqli_query($conex, $sql);
 
-                                    if (mysqli_num_rows($presentes_abertos) == 0 ) 
+                                    if (empty($pre)  ) 
                                         {	echo "<center><font color = red >Nao existem registros de presentes especiais!</font>";
                                         }
-//                                        var_dump($pre);
                                             echo '<table border=1 bgcolor="LightGray" width="70%">';
                                             echo '<thead bgcolor="#BDBDBD"><tr><th colspan="8" bgcolor="white" align="center" >Presentes especiais em aberto conta '.$contaNome.' </th>  </tr>';
 
@@ -1320,30 +1326,31 @@ if (!$resultUltimo || $resultUltimo == null )
                                             echo '</tr></thead>';
                                             echo '<tbody style="font-size:80%">';
                                             $total = 0;	$inicio = 1;
-                                //	while ($rows_presentes = mysqli_fetch_assoc($presentes_abertos)) 
                                         $contaY = "a"; 
-                                $data_2Mes = date('Y-m-d', strtotime("-60 day", strtotime( date('Y-m-d'))));
+                                $data_3Mes = date('Y-m-d', strtotime("-90 day", strtotime( date('Y-m-d'))));
                                 $data_6Mes = date('Y-m-d', strtotime("-180 day", strtotime( date('Y-m-d'))));
-                                 foreach ($pre as $rpres)  
+                                $data_anoAtual = date('Y-m-d', strtotime( date('Y-01-01')));
+                                 foreach ($pre as $rpres)
                                  {
                                     $contaPres = $rpres->conta == 4 && $conta == 5 ? 5 : $rpres->conta;
                                      
-                                     switch ($contaPres) 
-                                        {
-                                            case 1:	$contaN = "IEADALPE - 1444-3";  $contaBen = "IEADALPE - 1444-3"; break;    
-                                            case 2:	$contaN = "22360-3";            $contaBen = "22360-3"; break;  
-                                            case 3:	$contaN = "ILPI";               $contaBen = "ILPI"; break;  
-                                            case 4:	$contaN = "BR214";              $contaBen = "BR0214"; break;  
-                                            case 5:	$contaN = "BR518";              $contaBen = "BR0518"; break;  
-                                            case 6:	$contaN = "BR542";              $contaBen = "BR0542"; break;  
-                                            case 7:	$contaN = "BR549";              $contaBen = "BR0549"; break;  
-                                            case 8:	$contaN = "BR579";              $contaBen = "BR0579"; break;  
-                                            case 9:	$contaN = "BB 28965-5"; 	    $contaBen = "BB 28965-5"; break;  
-                                            case 10:$contaN = "CEF 1948-4";         $contaBen = "CEF 1948-4"; break;
-                                            case 99:$contaN = "Todas contas";       $contaBen = "Todas contas"; break;  				
-                                        }		
+                                    $contaBen = $contaN = $conta != 99 ? $this->session->userdata('conta'.$conta.'_nome') : "Todas contas";
+                                    //  switch ($contaPres) 
+                                    //     {
+                                    //         case 1:	$contaN = "IEADALPE - 1444-3";  $contaBen = "IEADALPE - 1444-3"; break;    
+                                    //         case 2:	$contaN = "22360-3";            $contaBen = "22360-3"; break;  
+                                    //         case 3:	$contaN = "ILPI";               $contaBen = "ILPI"; break;  
+                                    //         case 4:	$contaN = "BR214";              $contaBen = "BR0214"; break;  
+                                    //         case 5:	$contaN = "BR518";              $contaBen = "BR0518"; break;  
+                                    //         case 6:	$contaN = "BR542";              $contaBen = "BR0542"; break;  
+                                    //         case 7:	$contaN = "BR549";              $contaBen = "BR0549"; break;  
+                                    //         case 8:	$contaN = "BR579";              $contaBen = "BR0579"; break;  
+                                    //         case 9:	$contaN = "BB 28965-5"; 	    $contaBen = "BB 28965-5"; break;  
+                                    //         case 10:$contaN = "CEF 1948-4";         $contaBen = "CEF 1948-4"; break;
+                                    //         case 99:$contaN = "Todas contas";       $contaBen = "Todas contas"; break;  				
+                                    //     }		
                                      
-                                    if(($rpres->dataFin > $data_6Mes) && (($rpres->dataFin > $data_2Mes) || ($rpres->valor_pendente > 3 && $rpres->dataFin <= $data_2Mes)) && $rpres->projeto == $contaPres)
+                                    if((($rpres->dataFin > $data_6Mes) || ($rpres->dataFin > $data_anoAtual) )&& (($rpres->valor_pendente > 3 && $rpres->dataFin >= $data_3Mes)) && $rpres->projeto == $contaPres)
                                     {                                        
                                             $data_Ch= implode('/',array_reverse(explode('-',$rpres->dataFin)));
                                             $val_Ch= number_format($rpres->valor_entrada, 2, ',', '.');

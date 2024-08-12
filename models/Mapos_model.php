@@ -27,6 +27,14 @@ class Mapos_model extends CI_Model {
         return $result;
     }
 
+    function get2($table,$fields,$fieldOrde,$fieldOrde2 = false){
+        if ($fieldOrde2)
+        $this->db->order_by($fieldOrde2,'desc');
+        $this->db->order_by($fieldOrde);
+        $this->db->select($fields);
+        return $this->db->get($table)->result();
+    }
+
     function getById($id){
         $this->db->from('usuarios');
         $this->db->select('usuarios.*, permissoes.nome as permissao');
@@ -130,6 +138,14 @@ class Mapos_model extends CI_Model {
         return $this->db->get()->result();
     }
 
+    function getlogsSessions(){
+        $this->db->select('ci.*');
+        $this->db->from('ci_sessions ci');
+        $this->db->order_by('timestamp','desc');
+        $this->db->limit(200);
+        return $this->db->get()->result();
+    }
+
     function getLancamentos($table){
 
         
@@ -151,7 +167,7 @@ class Mapos_model extends CI_Model {
     }
 
     function getOsEstatisticas(){
-        $dataInicial = date('Y-m-01');
+        $dataInicial = date('Y-08-01');
        // $sql = "SELECT conta, COUNT(conta) as total FROM aenpfin  WHERE dataFin >= ".$dataInicial." GROUP BY conta ORDER BY conta";
         $sql = "SELECT conta FROM aenpfin  WHERE dataFin >= '".$dataInicial."'  ORDER BY conta";
         return $this->db->query($sql)->result();
@@ -257,6 +273,13 @@ class Mapos_model extends CI_Model {
         $this->db->set('url_logo', $logo); 
         $this->db->where('id', $id);
         return $this->db->update('emitente'); 
+         
+    }
+    public function editFoto($id, $logo){
+        
+        $this->db->set('url_foto', $logo); 
+        $this->db->where('idUsuarios', $id);
+        return $this->db->update('usuarios'); 
          
     }
 

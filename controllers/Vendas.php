@@ -21,8 +21,41 @@ class Vendas extends CI_Controller {
 		$this->data['menuVendas'] = 'Vendas';
         $_SESSION['DATA_FIM_BR518'] = '2022-11-30';
         $_SESSION['DATA_LIMITE_INICIO'] = '2022-01-01';
-	}	
-	
+	}
+    
+    function verificaPermissoesData($dataFin, $ct, $acao = 'e'){
+        $ct = $ct < 10 ? '0'.$ct : $ct;
+        $mesAtual01 = date('Y-m-01');
+        $mes_atraz_1 = date('Y-m-d', strtotime("-1 month", strtotime($mesAtual01)));
+        $mes_atraz_3  = date('Y-m-d', strtotime("-3 month", strtotime($mesAtual01)));
+        $mes_atraz_6  = date('Y-m-d', strtotime("-6 month", strtotime($mesAtual01)));
+        $mes_atraz_12  = date('Y-m-d', strtotime("-12 month", strtotime($mesAtual01)));
+        $atraz_1ano  = date('Y-01-d', strtotime($mes_atraz_12));
+        if($dataFin >= $mes_atraz_1)
+            {
+                if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_01')){echo 'aLancamento_antigos_1mes'; echo '1 mês ';return true;}
+            }else
+            if($dataFin >= $mes_atraz_3)
+                {
+                    if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_03')){echo 'aLancamento_antigos_3mes'; echo '3 mês '; return true;}
+                }else
+                if($dataFin >= $mes_atraz_6)
+                    {
+                        if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_06')){echo 'aLancamento_antigos_6mes'; echo '6 mês '; return true;}
+                    }else
+                    if($dataFin >= $mes_atraz_12)
+                        {
+                            if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_12')){echo 'aLancamento_antigos_1ano'; return true;}
+                        }else
+                        if($dataFin >= $atraz_1ano)
+                            {
+                                if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_1a')){echo 'aLancamento_antigos_1ano'; return true;}
+                            }else
+                        {
+                            // echo $acao.'Lancamento_antigos_1ano '.$dataFin.' '.$mes_atraz_1.' '.$mes_atraz_2.' '.$mes_atraz_3.' '.$mes_atraz_12; 
+                            return false;}
+    }
+
 	function index(){
 		$this->gerenciar();
 	}
@@ -102,7 +135,19 @@ class Vendas extends CI_Controller {
         
         if($contaU == 99)
         {
-            $this->data['results'] = $this->vendas_model->get('aenpfin','*',$where_array,$config['per_page'],$this->uri->segment(3));
+            $contaUser = array();
+             for($i=1;$i<11;$i++) {
+                $permissVConta = 'vC'.$i;
+                if($this->permission->checkPermission($this->session->userdata('permissao'), $permissVConta))
+                $contaUser[] =$i;
+                var_dump($permissVConta);
+
+// string(3) "vC1" string(3) "vC2" string(3) "vC3" string(3) "vC4" string(3) "vC5" string(3) "vC6" string(3) "vC7" string(3) "vC8" string(3) "vC9" string(4) "vC10"
+             }
+            //  var_dump($this->permission->checkPermission($this->session->userdata('permissao'), 'vC1', true));
+            //  var_dump($contaUser);
+            //  die();
+            $this->data['results'] = $this->vendas_model->get('aenpfin','*',$contaUser,$where_array,$config['per_page'],$this->uri->segment(3));
         }else
            {
         $this->data['results'] = $this->vendas_model->get0('aenpfin','*',$contaU,'',$config['per_page'],$this->uri->segment(3));
@@ -114,7 +159,7 @@ class Vendas extends CI_Controller {
         $this->data['result_caixas'] = $this->vendas_model->get2('caixas');        
         $this->data['anexos'] = $this->vendas_model->get2('anexos');                
         $this->data['presentesEsp'] = $this->vendas_model->get2('presentes_especiais');
-// Alterar toda coluna de data de Emissão
+        // Alterar toda coluna de data de Emissão
         /*
         $reconc = $this->vendas_model->get2('reconc_bank');
         
@@ -196,7 +241,7 @@ class Vendas extends CI_Controller {
          $data_saldo_Penultimo = $saldoAtualID->dataFin;
 
                     
-//******busca de todos registro, após o penultimo saldo *********
+        //******busca de todos registro, após o penultimo saldo *********
         if(($caixa == 4 || $caixa == 5) && $dataF > $_SESSION['DATA_FIM_BR518'] )
         $cCaixArr = array(4,5);else
         $caixArr = array($caixa);
@@ -204,12 +249,12 @@ class Vendas extends CI_Controller {
 
         $maisRecentes = $this->vendas_model->getAtualizarOsSaldo($cCaixArr,$t_conta,$data_saldo_Penultimo,$menorMaior);
                     
-//inicia variavel do dia final do mes do registro anterior com o dia fim do mês do lançamento
+        //inicia variavel do dia final do mes do registro anterior com o dia fim do mês do lançamento
                     
         $fim_mes = ultimoDiaMes($dataF);
 
         $s_anterior =	$saldo_Penultimo;
-//                while ($maisRecent = mysqli_fetch_assoc($maisRecentes))
+        //                while ($maisRecent = mysqli_fetch_assoc($maisRecentes))
                 
         foreach ($maisRecentes as $r) 
         {
@@ -217,13 +262,13 @@ class Vendas extends CI_Controller {
             if($dataF > $_SESSION['DATA_FIM_BR518'])
              {   
                 if($caixa == 5 || $caixa == 4 )
-                 {   
+        {   
                     if(($r->conta == 5 || $r->conta == 4) && ($r->dataFin > $_SESSION['DATA_FIM_BR518']))
                        { $oK = 1;
                        }else if($caixa == $r->conta) $oK = 1;
-                }else if($caixa == $r->conta) $oK = 1;
+                        }else if($caixa == $r->conta) $oK = 1;
             }else if($caixa == $r->conta) $oK = 1;
-            if($oK == 1)
+                    if($oK == 1)
             {	
                 //if ($maisRecent['dataFin > $dataF) 
                 //{
@@ -237,9 +282,9 @@ class Vendas extends CI_Controller {
                 'saldo' => $s_Atual
             );
             if ($this->vendas_model->edit('aenpfin', $dataS, 'id_fin', $r->id_fin) == TRUE)                
-//                            $upd = "UPDATE aenpfin SET saldo = ".$s_Atual." WHERE (id_fin =  ".$r->id_fin.")";
-//                            $atualiz = mysqli_query($conex,$upd);
-//                            if ($atualiz) 
+        //                            $upd = "UPDATE aenpfin SET saldo = ".$s_Atual." WHERE (id_fin =  ".$r->id_fin.")";
+        //                            $atualiz = mysqli_query($conex,$upd);
+        //                            if ($atualiz) 
                 {
                 }else {
                     die ("<center>Desculpe, Erro na atualização.:  "
@@ -263,9 +308,9 @@ class Vendas extends CI_Controller {
                         );                        
                         if ($this->vendas_model->edit('aenpfin', $dataS, 'id_fin', $id_anterior) == TRUE)
 
-    //                                $upd = "UPDATE aenpfin SET saldo_Mes = '".$saldo_mes."' WHERE (id_fin = ".$id_anterior.")";
-    //                                $atualiz = mysqli_query($conex, $upd);
-    //                                if ($atualiz) 
+        //                                $upd = "UPDATE aenpfin SET saldo_Mes = '".$saldo_mes."' WHERE (id_fin = ".$id_anterior.")";
+        //                                $atualiz = mysqli_query($conex, $upd);
+        //                                if ($atualiz) 
                         {                            
                         }else {
                         die ("<center>Desculpe, Erro na atualização.:  " 
@@ -274,10 +319,10 @@ class Vendas extends CI_Controller {
                         }										
                 }
                 if(	$saldo_mes == "S") $s_mes = "| Saldo do mês."; else $s_mes = "";
-//                    echo '<font color=red size="2"> Conta '.$r->conta;
-//                    echo ' | Tipo '.$r->tipo_Conta. ' | Data </font> <font color=green>'.$d_anterior. ' </font> <font color=red>
-//                    | Registro '.$id_anterior. ' | Saldo alterado para '.$s_Atual. '  
-//                    '.$s_mes. ' <td></font><br />';
+        //                    echo '<font color=red size="2"> Conta '.$r->conta;
+        //                    echo ' | Tipo '.$r->tipo_Conta. ' | Data </font> <font color=green>'.$d_anterior. ' </font> <font color=red>
+        //                    | Registro '.$id_anterior. ' | Saldo alterado para '.$s_Atual. '  
+        //                    '.$s_mes. ' <td></font><br />';
                     $id_anterior = $r->id_fin;
                     $fim_mes = $data_ultimo_dia;
                 }
@@ -290,8 +335,8 @@ class Vendas extends CI_Controller {
           $this->session->set_flashdata('error','Você não tem permissão para adicionar Vendas.');
           redirect(base_url());
         }
-//        $_SESSION['textoSomatorio'] = '';
-//        $_SESSION['textoSomatorioItens'] = '';
+        //        $_SESSION['textoSomatorio'] = '';
+        //        $_SESSION['textoSomatorioItens'] = '';
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';        
         $conta   = $this->input->post('conta');
@@ -342,7 +387,7 @@ class Vendas extends CI_Controller {
             $con = new Conexao();
 			$con->connect(); $conex = $_SESSION['conex'];
            // if(null !==  ( $this->input->post('id_caixa')))
-//****** VARIAVEIS RECEBIDAS******
+        //****** VARIAVEIS RECEBIDAS******
              { 
                 $caixa         = $this->input->post('conta');
                 $tipoCont      = $this->input->post('tipoCont');								
@@ -372,7 +417,7 @@ class Vendas extends CI_Controller {
                 if(null !== ( $this->input->post('id_presentes'))) $id_presentes =  ($this->input->post('id_presentes'));	
                 if(null !== (   $this->input->post('senhaAdm') )) {  $senhaAdm  = $this->input->post('senhaAdm');} 
                 $p_Origem = base_url().'index.php/vendas/adicionar';  
- //*******Verifica se o valor foi digitado adequadamente.
+        //*******Verifica se o valor foi digitado adequadamente.
             {
                      if(formatoRealPntVrg($valorFin) == true) 
                {//Verific se o numero digitado é com (.) milhar e (,) decimal
@@ -443,17 +488,17 @@ class Vendas extends CI_Controller {
                  
                   if( null !== $qtd_presentes && ($qtd_presentes) > 0)
                   {
-                            for ($contar = 1 ; $contar <= $qtd_presentes; $contar++)
-								{
-									$nome = 'nome'.$contar;
-									$CodigoId = 'Codigo'.$contar;
-									$Protocolo = 'Protocolo'.$contar;
-									$valorPre = 'valorPre'.$contar;
-								//	$_SESSION[$nome] = $_POST[$nome];
-									$_SESSION[$CodigoId]	= $_POST[$CodigoId];								
-									$_SESSION[$Protocolo] = $_POST[$Protocolo];
-									$_SESSION[$valorPre] = $_POST[$valorPre];
-                                }
+                    for ($contar = 1 ; $contar <= $qtd_presentes; $contar++)
+                        {
+                            $nome = 'nome'.$contar;
+                            $CodigoId = 'Codigo'.$contar;
+                            $Protocolo = 'Protocolo'.$contar;
+                            $valorPre = 'valorPre'.$contar;
+                        //	$_SESSION[$nome] = $_POST[$nome];
+                            $_SESSION[$CodigoId]	= $_POST[$CodigoId];								
+                            $_SESSION[$Protocolo] = $_POST[$Protocolo];
+                            $_SESSION[$valorPre] = $_POST[$valorPre];
+                        }
                   }
             }        
             
@@ -478,7 +523,7 @@ class Vendas extends CI_Controller {
                 'dataCadastro'  => date('Y-m-d H:i'),
                 'alteracoes'    => $alteracoes
             ); 
- //***** VERIFICAÇÕES PARA LANÇAMENTO           
+            //***** VERIFICAÇÕES PARA LANÇAMENTO           
             {
                 $p_Origem = base_url().'index.php/vendas/adicionar';
                    for ($contar = 1 ; $contar <= $qtd_presentes; $contar++)
@@ -520,56 +565,48 @@ class Vendas extends CI_Controller {
                 
                 $datahj = date('Y-m-d');
                 $data_R = date('Y-m-d', strtotime("-3 month", strtotime($datahj)));
-                if($permissoes_id < 3 && $dataF > $data_R)  $senhaAdm = "aenp@z18";
-                 if(!(isset($senhaAdm))){ $senhaAdm = "0000";}else if($senhaAdm == "vid@18") $senhaAdm = "aenp@z18";
+                if($permissoes_id < 3 && $dataF > $data_R)  $senhaAdm = "aenp@z2023";
+                 if(!(isset($senhaAdm))){ $senhaAdm = "0000";}else if($senhaAdm == "vid@23") $senhaAdm = "aenp@z2023";
                     //echo $datahj;
                 //	$dataF= implode('-',array_reverse(explode('/',$data)));
-                        $data_001 =  primeiroDiaMes($datahj);								
-                        $data_007 =  setimoDiadoMes($datahj);
-                
-                
-            if(($datahj > $data_007) && ($dataF < $data_001))
-            {
-                if($senhaAdm == "0000")
-                 {echo "<br/><font color = #458B74 size = 3 text-align:center>Prazo Limite para lançamento referente a esta data foi aspirado. <br/> 
-                            Retorne e altere a data ou contate o administrador.</font><br/>";
-                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\" Prazo Limite para lançamento referente a esta data foi aspirado, tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-                            }else
-                if($senhaAdm <> "aenp@z18")
-                 {echo "<br/><font color = #458B74 size = 3 text-align:center>Senha inválida para lançamento desta data. <br/> 
-                            Retorne e altere a data ou contate o administrador.</font><br/>";
-                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\" Senha inválida para lançamento desta data, tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-                            }else
-                if($dataF < $datainicioLimite)
-                 {echo "<br/><font color = #458B74 size = 3 text-align:center>Data não autorizada para lançamento. <br/> 
-                            Retorne e altere a data ou contate o administrador.</font><br/>";
-                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\" Data não autorizada para lançamento. Tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-                            }
-            }
-            if($dataF < $datainicioLimite || $dataF > $datahj )
+                $data_001 =  primeiroDiaMes($datahj);								
+                $data_007 =  setimoDiadoMes($datahj);
+
+                if(($datahj > $data_007) && ($dataF < $data_001) )
                 {
+                    if(false == $this->verificaPermissoesData($dataF, $caixa, 'a')) //PARAMETRO 'e' editar
+                        {
+                            echo "<br/><font color = #458B74 size = 3 text-align:center>Prazo Limite para lançamento referente a esta data foi aspirado. <br/> 
+                            Retorne e altere a data ou contate o administrador.</font><br/>";
+                            echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                    <script type=\"text/javascript\">
+                                    alert(\" Você não possui Permissão para lançamento referente a esta data, Procure o administrador do sistema! Linha: ". __LINE__ . "\");
+                                    </script>";	
+                            exit;  
+                    }else
+                    if($dataF < $datainicioLimite)
+                        {
+                            echo "<br/><font color = #458B74 size = 3 text-align:center>Data não autorizada para lançamento. <br/> 
+                            Retorne e altere a data ou contate o administrador.</font><br/>";
+                            echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                    <script type=\"text/javascript\">
+                                    alert(\" Data anterior ao Fechamento do relatório contábil ANUAL não autorizada edição. Tente novamente! Linha: ". __LINE__ . "\");
+                                    </script>";	
+                            exit;  
+                    }                    
+                }
+                if($dataF < $datainicioLimite || $dataF > $datahj )
+                    {
                                 echo "ERRO!  - <strong><td> A data não é uma data válida, tente novamente!</td></strong><br/>";
                              echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
                                         <script type=\"text/javascript\">
                                         alert(\" A data não é uma data válida, tente novamente! Linha: ". __LINE__ . "\");
                                         </script>";	
                       exit;  
-                            }
+                    }
              //   echo "</b></br> Valor recebdo <strong><td> R$  ".$valorFin."</td></strong></br>";            
 
- //*******Verifica se o valor foi digitado adequadamente.
+                //*******Verifica se o valor foi digitado adequadamente.
             {
                      if(formatoRealPntVrg($valorFin) == true) 
                {//Verific se o numero digitado é com (.) milhar e (,) decimal
@@ -777,13 +814,13 @@ class Vendas extends CI_Controller {
                 
               $_SESSION['textoSomatorioItens'] = $textoSomatorioItens;
                 
-                               var_dump($_SESSION['textoSomatorioItens']);
+                var_dump($_SESSION['textoSomatorioItens']);
             }	
                 
-//*****se for presente especial faz um lançamento 
+                //*****se for presente especial faz um lançamento 
             if($cod_compassion == ( "D07 - 0730"))//Saída com presentes especiais
             {
-            //	echo 'linha '. __LINE__;
+                //	echo 'linha '. __LINE__;
                 if(!$id_presentes)//Saída com presentes especiais
                 {						
                 //echo "cod_compassion: ".$cod_compassion." qtd_presentes: ".$qtd_presentes."<br>";
@@ -900,8 +937,8 @@ class Vendas extends CI_Controller {
             echo "Conta lançaento - ".$caixa." | Tipo - ".$tipoCont." | Doc Banco - ".$num_Doc." | Doc Fiscal ".$numDocFiscal." | Histórico ".$razaoSoc." | Data - ".$dataF." | Valor - ".$valorFin." | conta_Destino - ".$conta_Destino." | ent_Sai - ".$ent_Sai;
             //exit;	
             }
-//******Insere o lançamento na tabela aenpfin*********
-              /*  {				
+                //******Insere o lançamento na tabela aenpfin*********
+                /*  {				
                   echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
                                     <script type=\"text/javascript\">
                                     alert(\"Lançamento OK. Retornando ! <br>Linha: ". __LINE__ . "\");
@@ -909,10 +946,10 @@ class Vendas extends CI_Controller {
                  exit; 
                 }*/
              if (is_numeric($id = $this->vendas_model->add('aenpfin', $data, true)) )
-//                if (1==1)
+                //                if (1==1)
                 {                 
                    $paginaDestino = "adicionar/";
-//****** Resgata o ID do lançamento feito
+                    //****** Resgata o ID do lançamento feito
                     $res_max = mysqli_query($conex, 'SELECT id_fin FROM aenpfin ORDER BY id_fin DESC LIMIT 1 ');
                         if (!$res_max  ) 
                         {			die ("<center>Desculpe, Nao foi encontrado nenhum item com esse criterio. Tente novamente:  " 
@@ -925,12 +962,12 @@ class Vendas extends CI_Controller {
                         }
                         while ($id_ultimo = mysqli_fetch_assoc($res_max)) 
                         {	$id_Maxaenp = $id_ultimo['id_fin']; }
-//******busca do ultimo registro com o saldo do mês marcado *********
-//                    echo '<br> Caixa '.(int)$caixa.'<br>';
+                    //******busca do ultimo registro com o saldo do mês marcado *********
+                    //                    echo '<br> Caixa '.(int)$caixa.'<br>';
                     if(($caixa == 4 || $caixa == 5) && $dataF > $_SESSION['DATA_FIM_BR518'] )
                    { $cCaixArr = array(4,5);
                     }else{ $cCaixArr = array((int)$caixa);}                    
-//                  var_dump('<br> Caixa',$cCaixArr); echo '<br>';
+                    //                  var_dump('<br> Caixa',$cCaixArr); echo '<br>';
                     $menorMaior = 'dataFin >';
                     $saldoAtualID = $this->vendas_model->getSaldo($cCaixArr,$t_conta,$datainicioLimite,$menorMaior);
                     
@@ -938,11 +975,11 @@ class Vendas extends CI_Controller {
                      $saldo_Atual = $saldoAtualID->saldo; 	
                      $dataUlt_saldo = $saldoAtualID->dataFin;
                     
-//*****se pagamento for em cheque faz um lançamento de reconciliação bancária
+                    //*****se pagamento for em cheque faz um lançamento de reconciliação bancária
                     if($tipo_Pag == "cheq") 
                     {                        
                         $data_Pag = $dataF;                        
-//*********Ja marca se o cheque ja foi compensado e guarda o id do registro atual pra referenciar o id do cheque
+                        //*********Ja marca se o cheque ja foi compensado e guarda o id do registro atual pra referenciar o id do cheque
                          if(isset($_POST["chequeCompen"])) { $status = 1;} else $status = 0;
                              $datachq = array(
                                 'id_aenp'   => $id_Maxaenp,
@@ -955,7 +992,7 @@ class Vendas extends CI_Controller {
                         {		
                         }
                     }
-//*****se for presente especial faz um lançamento 
+                    //*****se for presente especial faz um lançamento 
                     if($cod_compassion == ( "R01 - 1030"))//Entrada com presentes especiais
                     {	 
                         for ($contar = 1 ; $contar <= $qtd_presentes; $contar++)
@@ -980,10 +1017,10 @@ class Vendas extends CI_Controller {
                             $entraSai = $_POST[$n_entraSai];	
                             $negativ = 0;
                             $data_presente = $dataF;
-                          /*  if ( $valorPre < 0.00 ) {
+                            /*  if ( $valorPre < 0.00 ) {
                                $valorPre = abs($valorPre);
-                         $negativ = 1;
-                        }*/
+                            $negativ = 1;
+                            }*/
                             {
                              if(formatoRealPntVrg($valorPre) == true) 
                                {//Verific se o numero digitado é com (.) milhar e (,) decimal
@@ -1005,24 +1042,24 @@ class Vendas extends CI_Controller {
                                }
                             }
                           //  if($negativ == 1) { $valorPre = number_format($valorPre) * -1;}
-                        $valorPen = $valorPre;
-                         $id_saida = 0;
-                    if($entraSai == "0") // *** SE FOR VALOR DE DEVOLUÇÃO (NEGATIVO)
-                       { 
-                        $valorPre = 0.00 - $valorPre;
-                         $valorPen = 0.00;
-                        $idPre = $this->vendas_model->getByIdPre($Protocolo); //** PROCURA O PRESENTE A SER DEVOLVIDO
-                        if(isset($idPre) )                        
-                            echo $idPre->$nome;
-                            $id_saida = $id_Maxaenp;
-                             $dataP = array(
-                            'id_saida'          => $id_Maxaenp,
-                            'valor_pendente'    => $valorPen
-                            );                             
-                            if ($this->vendas_model->edit('presentes_especiais', $dataP, 'id_presente', $idPre->id_presente) == TRUE){ }
-                       }
+                            $valorPen = $valorPre;
+                            $id_saida = 0;
+                            if($entraSai == "0") // *** SE FOR VALOR DE DEVOLUÇÃO (NEGATIVO)
+                                { 
+                                    $valorPre = 0.00 - $valorPre;
+                                    $valorPen = 0.00;
+                                    $idPre = $this->vendas_model->getByIdPre($Protocolo); //** PROCURA O PRESENTE A SER DEVOLVIDO
+                                    if(isset($idPre) )                        
+                                        echo $idPre->$nome;
+                                        $id_saida = $id_Maxaenp;
+                                        $dataP = array(
+                                        'id_saida'          => $id_Maxaenp,
+                                        'valor_pendente'    => $valorPen
+                                        );                             
+                                        if ($this->vendas_model->edit('presentes_especiais', $dataP, 'id_presente', $idPre->id_presente) == TRUE){ }
+                                }
                           
-//****Colocar condição para se o valor for negativo procurar o lançamento identico anterior e lançar como saída
+                            //****Colocar condição para se o valor for negativo procurar o lançamento identico anterior e lançar como saída
 
                              $datapres = array(
                             'id_entrada'        => $id_Maxaenp,
@@ -1040,14 +1077,14 @@ class Vendas extends CI_Controller {
                         }
                         $paginaDestino = "gerenciar";
                     }	
-// ******* Se a data do ultimo saldo for maior que a do lançamento altera todos saldos posteriores			
+                        // ******* Se a data do ultimo saldo for maior que a do lançamento altera todos saldos posteriores			
                     
-                 //	{**** primeiro dia do mês do lançamento
-                        $dia_1_mes = primeiroDiaMes($dataF);
+                        //	{**** primeiro dia do mês do lançamento
+                    $dia_1_mes = primeiroDiaMes($dataF);
                   
-//******AJUSTE DE SALDO
-//******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
-//******No caso aqui esta usando como refencia o ultimo saldo de 2018 e recalcula todos os saldos dos lançamentos posteriores***			
+            //******AJUSTE DE SALDO
+            //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
+            //******No caso aqui esta usando como refencia o ultimo saldo de 2018 e recalcula todos os saldos dos lançamentos posteriores***			
            
             if($this->ajusteSaldo($caixa,$t_conta,$dataF )==TRUE)
                 echo "<center> "
@@ -1120,7 +1157,7 @@ class Vendas extends CI_Controller {
            // require_once 'funcao.php';
             $con = new Conexao();
 			$con->connect(); $conex = $_SESSION['conex'];
-         $p_Origem = base_url() . 'index.php/vendas/editar/'.$this->input->post('id_fin');
+            $p_Origem = base_url() . 'index.php/vendas/editar/'.$this->input->post('id_fin');
         
                 $id_fin         = $this->input->post('id_fin');
                 $conta          = $this->input->post('conta');
@@ -1147,7 +1184,7 @@ class Vendas extends CI_Controller {
                        $dataF = date('Y-m-d'); 
                     }
                   
- //*******Verifica se o valor foi digitado adequadamente.
+                //*******Verifica se o valor foi digitado adequadamente.
             {
                      if(formatoRealPntVrg($valorFin) == true) 
                {//Verific se o numero digitado é com (.) milhar e (,) decimal
@@ -1237,46 +1274,35 @@ class Vendas extends CI_Controller {
                                     </script>";	
                   exit;  
                 }	//URL=PaginaLancamento1.php
-            if($permissoes_id < 3)  $senhaAdm = "aenp@z18"; 
+            if($permissoes_id < 3)  $senhaAdm = "aenp@z2023"; 
                 $datahj = date('Y-m-d');
-            if(!(isset($senhaAdm))){ $senhaAdm = "0000";}else if($senhaAdm == "vid@19") $senhaAdm = "aenp@z18";
-                    //echo $datahj;
-                //	$dataF= implode('-',array_reverse(explode('/',$data)));
-                        $data_001 =  primeiroDiaMes($datahj);								
-                        $data_007 =  setimoDiadoMes($datahj);
-                
+            // if(!(isset($senhaAdm))){ $senhaAdm = "0000";}else if($senhaAdm == "vid@19") $senhaAdm = "aenp@z2023";
+            $data_001 =  primeiroDiaMes($datahj);								
+            $data_007 =  setimoDiadoMes($datahj);
+
             if(($datahj > $data_007) && ($dataF < $data_001) )
             {
-                if($senhaAdm == "0000")
-                 {echo "<br/><font color = #458B74 size = 3 text-align:center>Prazo Limite para lançamento referente a esta data foi aspirado. <br/> 
-                            Retorne e altere a data ou contate o administrador.</font><br/>";
-                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\" Prazo Limite para lançamento referente a esta data foi aspirado, tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-                            }else
-                if($senhaAdm <> "aenp@z18")
-                 {echo "<br/><font color = #458B74 size = 3 text-align:center>Senha inválida para lançamento desta data. <br/> 
-                            Retorne e altere a data ou contate o administrador.</font><br/>";
-                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\" Senha inválida para lançamento desta data, tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-                            }else
+                if(false == $this->verificaPermissoesData($dataF, $conta, 'e')) //PARAMETRO 'e' editar
+                    {
+                        echo "<br/><font color = #458B74 size = 3 text-align:center>Prazo Limite para lançamento referente a esta data foi aspirado. <br/> 
+                        Retorne e altere a data ou contate o administrador.</font><br/>";
+                        echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                <script type=\"text/javascript\">
+                                alert(\" Você não possui Permissão para lançamento referente a esta data, Procure o administrador do sistema! Linha: ". __LINE__ . "\");
+                                </script>";	
+                        exit;  
+                }else
                 if($dataF < $datainicioLimite)
-                 {echo "<br/><font color = #458B74 size = 3 text-align:center>Data não autorizada para lançamento. <br/> 
-                            Retorne e altere a data ou contate o administrador.</font><br/>";
-                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\" Data anterior ao Fechamento do relatório contábil não autorizada edição. Tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-                            }
-                    
+                    {
+                        echo "<br/><font color = #458B74 size = 3 text-align:center>Data não autorizada para lançamento. <br/> 
+                        Retorne e altere a data ou contate o administrador.</font><br/>";
+                        echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                <script type=\"text/javascript\">
+                                alert(\" Data anterior ao Fechamento do relatório contábil ANUAL não autorizada edição. Tente novamente! Linha: ". __LINE__ . "\");
+                                </script>";	
+                        exit;  
+                }                    
             }
-         //   if($dataF < "2010-01-01" || $dataF > $datahj)              
             if( $dataF > $datahj )
                 {
                  echo "ERRO!  - <strong><td> A data não é uma data válida, tente novamente!</td></strong><br/>";
@@ -1285,8 +1311,7 @@ class Vendas extends CI_Controller {
                             alert(\" A data não é uma data válida, tente novamente! Linha: ". __LINE__ . "\");
                             </script>";	
                 exit;  
-            }
-          
+            }          
                            
         $reg_Alteracao      = $this->input->post('reg_Alteracao');
         $conta_Old          = $this->input->post('conta_Old');
@@ -1351,15 +1376,15 @@ class Vendas extends CI_Controller {
             {
                 
                 
-   //	{**** primeiro dia do mês do lançamento
-    //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
-    //******No caso aqui esta usando como refencia o ultimo saldo de 2016 e recalcula todos os saldos dos lançamentos posteriores***			
-//******busca do ultimo registro com o saldo do mês marcado *********
-//                    echo '<br> Caixa '.(int)$caixa.'<br>';
+                //	{**** primeiro dia do mês do lançamento
+                    //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
+                    //******No caso aqui esta usando como refencia o ultimo saldo de 2016 e recalcula todos os saldos dos lançamentos posteriores***			
+                //******busca do ultimo registro com o saldo do mês marcado *********
+                //                    echo '<br> Caixa '.(int)$caixa.'<br>';
                     if(($conta == 4 || $conta == 5) && $dataF > $_SESSION['DATA_FIM_BR518'] )
                    { $cCaixArr = array(4,5);
                     }else{ $cCaixArr = array((int)$conta);}                    
-//                  var_dump('<br> Caixa',$cCaixArr); echo '<br>';
+                //                  var_dump('<br> Caixa',$cCaixArr); echo '<br>';
                     $menorMaior = 'dataFin >';
                     $saldoAtualID = $this->vendas_model->getSaldo($cCaixArr,$tipoCont_Atual,$datainicioLimite,$menorMaior);
                     
@@ -1367,24 +1392,24 @@ class Vendas extends CI_Controller {
                      $saldo_Atual = $saldoAtualID->saldo; 	
                      $dataUlt_saldo = $saldoAtualID->dataFin;
                     
-//               $sql_Saldo_Atual = 'SELECT id_fin, saldo, dataFin FROM aenpfin				
-//											WHERE dataFin > "'.$datainicioLimite.'" and 
-//											conta = '.$conta.'  and tipo_Conta = "'.$tipoCont_Atual.'"
-//											and saldo_Mes = "S" ORDER BY dataFin DESC LIMIT 1 ';		
-//						$result_Saldo_Atual = mysqli_query($conex, $sql_Saldo_Atual );
-//						
-//                
-//						while ($row_Saldo = mysqli_fetch_assoc($result_Saldo_Atual)) 
-//						{//ID, valor do saldo e a data do registro com o ultimo saldo marcado
-//							$id_Ultimo_Saldo = $row_Saldo['id_fin']; 
-//							$saldo_Atual = $row_Saldo['saldo']; 	
-//							$dataUlt_saldo = $row_Saldo['dataFin'];
-//						}
+                //               $sql_Saldo_Atual = 'SELECT id_fin, saldo, dataFin FROM aenpfin				
+                //											WHERE dataFin > "'.$datainicioLimite.'" and 
+                //											conta = '.$conta.'  and tipo_Conta = "'.$tipoCont_Atual.'"
+                //											and saldo_Mes = "S" ORDER BY dataFin DESC LIMIT 1 ';		
+                //						$result_Saldo_Atual = mysqli_query($conex, $sql_Saldo_Atual );
+                //						
+                //                
+                //						while ($row_Saldo = mysqli_fetch_assoc($result_Saldo_Atual)) 
+                //						{//ID, valor do saldo e a data do registro com o ultimo saldo marcado
+                //							$id_Ultimo_Saldo = $row_Saldo['id_fin']; 
+                //							$saldo_Atual = $row_Saldo['saldo']; 	
+                //							$dataUlt_saldo = $row_Saldo['dataFin'];
+                //						}
  
-    //******Verifica se existe  registro de cheque para este lançamento independente da informação em tipo_Pag***               
+                //******Verifica se existe  registro de cheque para este lançamento independente da informação em tipo_Pag***               
                 $querychek = mysqli_query($conex, 'SELECT id_aenp FROM reconc_bank 
                                         WHERE id_aenp LIKE "'.$id_fin.'" LIMIT 1  ');
-    if (!$querychek) 
+        if (!$querychek) 
             {
                         die ("<center>Desculpe, erro na busca de saldo atual.:  " 
                         . '<br>Linha: ' . __LINE__ . "<br>" . mysqli_error() . "<br>
@@ -1435,9 +1460,9 @@ class Vendas extends CI_Controller {
 
             $dia_1_mes = primeiroDiaMes($dataF);
                 
-//******AJUSTE DE SALDO
-//******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
-//******No caso aqui esta usando como refencia o ultimo saldo de 2018 e recalcula todos os saldos dos lançamentos posteriores***			
+                //******AJUSTE DE SALDO
+                //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
+                //******No caso aqui esta usando como refencia o ultimo saldo de 2018 e recalcula todos os saldos dos lançamentos posteriores***			
             if($this->ajusteSaldo($conta,$tipoCont_Atual,$dataF )==TRUE)
                 echo "<center> "
                     . '<br>Linha: ' . __LINE__ . "<br>													
@@ -1466,8 +1491,8 @@ class Vendas extends CI_Controller {
     }
     
     public function anexar(){
-     //   $this->session->set_flashdata('error','nome de arquivo. - ');   // Linha para testar variavel  
-      //  exit;
+        //   $this->session->set_flashdata('error','nome de arquivo. - ');   // Linha para testar variavel  
+        //  exit;
         $this->load->library('upload');
         $this->load->library('image_lib');
         $upload_conf = array(
@@ -1653,267 +1678,299 @@ class Vendas extends CI_Controller {
         {
             $datainicioLimite = '2020-01-01';
             include 'apoio/funcao.php';
-        $user_id = $this->vendas_model->getByIdUser($this->session->userdata('id'));
-        $permissoes_id = $user_id->permissoes_id;  
+            $user_id = $this->vendas_model->getByIdUser($this->session->userdata('id'));
+            $permissoes_id = $user_id->permissoes_Geral;  
+                
+                $dhoje = date('Y-m-d');
+                $dia7 = date('Y-m-07');
+                $dia1 = date('Y-m-01');
+                $data_1mesAnt = date('Y-m-d', strtotime("-1 month", strtotime($dia1)));
             
-            $dhoje = date('Y-m-d');
-            $dia7 = date('Y-m-07');
-            $dia1 = date('Y-m-01');
-            $data_1mesAnt = date('Y-m-d', strtotime("-1 month", strtotime($dia1)));
-         
-        $lancamento = $this->vendas_model->getById1($id);
-            
-                $conta          = $lancamento->conta;
-                $tipo_Conta     = $lancamento->tipo_Conta;
-                $tipoCont_Atual = $tipo_Conta;
-                $valorFin       = $lancamento->valorFin;
-                $ent_Sai        = $lancamento->ent_Sai;
-                $dataFin        = $lancamento->dataFin;
-            
-        if($dataFin > $datainicioLimite)    
-        if($permissoes_id < 3 || ($dhoje < $dia7 && $dataFin >= $data_1mesAnt) || ($dhoje >= $dia7 && $dataFin >= $dia1))
-        {
-        $ent_Sai =  $this->input->post('ent_Sai');
-        $id_reconc =  $this->input->post('id_reconc');
-        if ($id_reconc !== null  && 2==2)
-        {
-            $this->db->where('id_reconc', $id);
-            $this->db->delete('reconc_bank');
-        }     
-        if (isset($contPre) && 2==2)
-        { 
-            if($ent_Sai == 1)
-            {                
-                $contar = 1;
-                while ($contar <= $contPre) 
-                  {
-                    $id_presente =  $this->input->post('id_presente'.$contar);                   
-                    $this->db->where('id_presente', $id_presente);
-                    $this->db->delete('presentes_especiais');
-                }
-            } else if($ent_Sai == 0)
+            $lancamento = $this->vendas_model->getById1($id);
+                
+                    $conta          = $lancamento->conta;
+                    $tipo_Conta     = $lancamento->tipo_Conta;
+                    $tipoCont_Atual = $tipo_Conta;
+                    $valorFin       = $lancamento->valorFin;
+                    $ent_Sai        = $lancamento->ent_Sai;
+                    $dataFin        = $lancamento->dataFin;
+                
+            $datahj = date('Y-m-d');
+            $data_001 =  primeiroDiaMes($datahj);								
+            $data_007 =  setimoDiadoMes($datahj);
+            // echo $dataFin;
+            if($permissoes_id < 3 )
+            //|| ($dhoje < $dia7 && $dataFin >= $data_1mesAnt) || ($dhoje >= $dia7 && $dataFin >= $dia1))           
+            if(($datahj > $data_007) && ($dataFin < $data_001) )
             {
-              //  $this->data['protocoloPres'] = $this->vendas_model->getProtocPres($this->input->post('protocoloPres'));               
-                $valor_pendenteAnt = 0;
-                $contar = 1;
-                while ($contar <= $contPre) 
-                  {                    
-                    $id_presente =  $this->input->post('id_presente'.$contar);
-                    $id_entrada =  $this->input->post('id_entrada'.$contar);
-                    $id_saida =  $this->input->post('id_saida'.$contar);
-                    $data_presente =  $this->input->post('data_presente');
-                    $valor_saida =  $this->input->post('valor_saida'.$contar);
-                    $valor_entrada =  $this->input->post('valor_entrada'.$contar);
-                    $contPre =  $this->input->post('contPre'.$contar);
-                    
-                                   
- //*******Verifica se o valor foi digitado adequadamente.
-            {
-                     if(formatoRealPntVrg($valor_saida) == true) 
-               {//Verific se o numero digitado é com (.) milhar e (,) decimal
-                   //serve pra validar  valores acima e abaixo de 1000
-                    //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                    $valorFinExibe  =    $valor_saida;   
-                   $valor_saida  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valor_saida)) ));
-               }else if(formatoRealInt($valorFin) == true)
-               {//Verific se o numero digitado é inteiro sem ponto nem virgula
-                   //serve pra validar  valores acima e abaixo de 1000
-                   //       echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                    $valorFinExibe  =    number_format(str_replace(",",".",$valor_saida), 2, ',', '.');  
-                   $valor_saida  =    number_format(str_replace("." , "" ,$valor_saida), 2, '.', '');
-               }else if(formatoRealPnt($valor_saida) == true)
-               { 
-                   //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                   $valor_saida  =    $valor_saida;
-                    $valorFinExibe  =    number_format(str_replace(",",".",$valor_saida), 2, ',', '.');  
-               }else if(formatoRealVrg($valor_saida) == true)
-               { 
-                 //        echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                    $valorFinExibe  =    number_format(str_replace(",",".",$valor_saida), 2, ',', '.');  
-                   $valor_saida  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valor_saida)) ));
-               }else
-               {
-                   echo "O valor digitado não esta nos parametros solicitados";
-                          echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\"O valor digitado não esta nos parametros solicitados. Tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-
-
-               }
-            }
-    
-                    
-            {
-                     if(formatoRealPntVrg($valor_entrada) == true) 
-               {//Verific se o numero digitado é com (.) milhar e (,) decimal
-                   //serve pra validar  valores acima e abaixo de 1000
-                    //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                    $valorFinExibe  =    $valor_entrada;   
-                   $valor_entrada  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valor_entrada)) ));
-               }else if(formatoRealInt($valorFin) == true)
-               {//Verific se o numero digitado é inteiro sem ponto nem virgula
-                   //serve pra validar  valores acima e abaixo de 1000
-                   //       echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                    $valorFinExibe  =    number_format(str_replace(",",".",$valor_entrada), 2, ',', '.');  
-                   $valor_entrada  =    number_format(str_replace("." , "" ,$valor_entrada), 2, '.', '');
-               }else if(formatoRealPnt($valor_entrada) == true)
-               { 
-                   //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                   $valor_entrada  =    $valor_entrada;
-                    $valorFinExibe  =    number_format(str_replace(",",".",$valor_entrada), 2, ',', '.');  
-               }else if(formatoRealVrg($valor_entrada) == true)
-               { 
-                 //        echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                    $valorFinExibe  =    number_format(str_replace(",",".",$valor_entrada), 2, ',', '.');  
-                   $valor_entrada  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valor_entrada)) ));
-               }else
-               {
-                   echo "O valor digitado não esta nos parametros solicitados";
-                          echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-                                        <script type=\"text/javascript\">
-                                        alert(\"O valor digitado não esta nos parametros solicitados. Tente novamente! Linha: ". __LINE__ . "\");
-                                        </script>";	
-                      exit;  
-
-
-               }
-            }
-    
-                    if ( $id_saida == $id )
-                    {                
-                    $this->db->where('id_presente', $id_presente);
-                    $this->db->delete('presentes_especiais');
-                    }else 
+                if(false == $this->verificaPermissoesData($dataFin, $conta, 'd')) //PARAMETRO 'd' deletar
                     {
-                        if( $contar == 1)
-                        {  
-                            $valor_pendente = $valor_entrada;
+                        echo "<br/><font color = #458B74 size = 3 text-align:center>Prazo Limite para lançamento referente a esta data foi aspirado. <br/> 
+                        Retorne e altere a data ou contate o administrador.</font><br/>";
+                        echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL='menu1.php''>
+                                <script type=\"text/javascript\">
+                                alert(\" Você não possui Permissão para Excluir lançamento referente a esta data, Procure o administrador do sistema! Linha: ". __LINE__ . "\");
+                                </script>";	
+                        exit;  
+                }else
+                if($dataFin < $datainicioLimite)
+                    {
+                        echo "<br/><font color = #458B74 size = 3 text-align:center>Data não autorizada para lançamento. <br/> 
+                        Retorne e altere a data ou contate o administrador.</font><br/>";
+                        echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL='menu1.php''>
+                                <script type=\"text/javascript\">
+                                alert(\" Data anterior ao Fechamento do relatório contábil ANUAL não autorizada edição. Tente novamente! Linha: ". __LINE__ . "\");
+                                </script>";	
+                        exit;  
+                }                    
+            }
+            if($dataFin < $datainicioLimite || $dataFin > $datahj )
+                {
+                            echo "ERRO!  - <strong><td> A data não é uma data válida, tente novamente!</td></strong><br/>";
+                         echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL='menu1.php''>
+                                    <script type=\"text/javascript\">
+                                    alert(\" A data não é uma data válida, tente novamente! Linha: ". __LINE__ . "\");
+                                    </script>";	
+                  exit;  
+                }
+            // die();
+            {
+                $ent_Sai =  $this->input->post('ent_Sai');
+                $id_reconc =  $this->input->post('id_reconc');
+                if ($id_reconc !== null  && 2==2)
+                {
+                    $this->db->where('id_reconc', $id);
+                    $this->db->delete('reconc_bank');
+                }     
+                if (isset($contPre) && 2==2)
+                { 
+                    if($ent_Sai == 1)
+                    {                
+                        $contar = 1;
+                        while ($contar <= $contPre) 
+                        {
+                            $id_presente =  $this->input->post('id_presente'.$contar);                   
+                            $this->db->where('id_presente', $id_presente);
+                            $this->db->delete('presentes_especiais');
+                        }
+                    } else if($ent_Sai == 0)
+                    {
+                        //  $this->data['protocoloPres'] = $this->vendas_model->getProtocPres($this->input->post('protocoloPres'));               
+                        $valor_pendenteAnt = 0;
+                        $contar = 1;
+                        while ($contar <= $contPre) 
+                        {                    
+                            $id_presente =  $this->input->post('id_presente'.$contar);
+                            $id_entrada =  $this->input->post('id_entrada'.$contar);
+                            $id_saida =  $this->input->post('id_saida'.$contar);
+                            $data_presente =  $this->input->post('data_presente');
+                            $valor_saida =  $this->input->post('valor_saida'.$contar);
+                            $valor_entrada =  $this->input->post('valor_entrada'.$contar);
+                            $contPre =  $this->input->post('contPre'.$contar);
+                        //*******Verifica se o valor foi digitado adequadamente.
+                    {
+                            if(formatoRealPntVrg($valor_saida) == true) 
+                        {//Verific se o numero digitado é com (.) milhar e (,) decimal
+                            //serve pra validar  valores acima e abaixo de 1000
+                                //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                                $valorFinExibe  =    $valor_saida;   
+                            $valor_saida  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valor_saida)) ));
+                        }else if(formatoRealInt($valorFin) == true)
+                        {//Verific se o numero digitado é inteiro sem ponto nem virgula
+                            //serve pra validar  valores acima e abaixo de 1000
+                            //       echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                                $valorFinExibe  =    number_format(str_replace(",",".",$valor_saida), 2, ',', '.');  
+                            $valor_saida  =    number_format(str_replace("." , "" ,$valor_saida), 2, '.', '');
+                        }else if(formatoRealPnt($valor_saida) == true)
+                        { 
+                            //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                            $valor_saida  =    $valor_saida;
+                                $valorFinExibe  =    number_format(str_replace(",",".",$valor_saida), 2, ',', '.');  
+                        }else if(formatoRealVrg($valor_saida) == true)
+                        { 
+                            //        echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                                $valorFinExibe  =    number_format(str_replace(",",".",$valor_saida), 2, ',', '.');  
+                            $valor_saida  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valor_saida)) ));
                         }else
                         {
-                            $valor_pendente = $valor_pendente - $id_saidaAnt;
-                            if ( $contar == $contPre )
-                            {
-                                 $datapresUp = array(
-                                    'id_saida'      => $id_saidaAnt,
-                                    'data_presente' => $data_presenteAnt,
-                                    'valor_saida'   => $valor_saidaAnt,
-                                    'valor_pendente'=> $valor_pendente
-                                );
-                                 $datapresUpFIm = array(
-                                    'id_saida'      => 0,
-                                    'data_presente' => $data_presente,
-                                    'valor_saida'   => $valor_saida,
-                                    'valor_pendente'=> $valor_pendente
-                                );
-                            if ($this->vendas_model->edit('presentes_especiais', $datapresUpFIm, 'id_presente', $id_presente) == TRUE) 
-                            {}
-                            } else
-                               {
-                                 $datapresUp = array(
-                                    'id_saida'      => $id_saidaAnt,
-                                    'data_presente' => $data_presenteAnt,
-                                    'valor_saida'   => $valor_saidaAnt,
-                                    'valor_pendente'=> $valor_pendente
-                                );
-                                 }  
-                            if ($this->vendas_model->edit('presentes_especiais', $datapresUp, 'id_presente', $id_Ant) == TRUE) 
-                            {}
+                            echo "O valor digitado não esta nos parametros solicitados";
+                                    echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                                    <script type=\"text/javascript\">
+                                                    alert(\"O valor digitado não esta nos parametros solicitados. Tente novamente! Linha: ". __LINE__ . "\");
+                                                    </script>";	
+                                exit;  
+
+
                         }
-                        $id_Ant = $id_presente;
-                    }
-                        $data_presenteAnt = $data_presente;
-                        $id_saidaAnt = $id_saida;
-                        $valor_saidaAnt = $valor_saida;
-                    ++$contar;
-                }
-                    if ($id_reconc !== null)
+                    }      
                     {
-                        $this->db->where('id_reconc', $id);
-                       $this->db->delete('reconc_bank');
+                            if(formatoRealPntVrg($valor_entrada) == true) 
+                        {//Verific se o numero digitado é com (.) milhar e (,) decimal
+                            //serve pra validar  valores acima e abaixo de 1000
+                                //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                                $valorFinExibe  =    $valor_entrada;   
+                            $valor_entrada  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valor_entrada)) ));
+                        }else if(formatoRealInt($valorFin) == true)
+                        {//Verific se o numero digitado é inteiro sem ponto nem virgula
+                            //serve pra validar  valores acima e abaixo de 1000
+                            //       echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                                $valorFinExibe  =    number_format(str_replace(",",".",$valor_entrada), 2, ',', '.');  
+                            $valor_entrada  =    number_format(str_replace("." , "" ,$valor_entrada), 2, '.', '');
+                        }else if(formatoRealPnt($valor_entrada) == true)
+                        { 
+                            //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                            $valor_entrada  =    $valor_entrada;
+                                $valorFinExibe  =    number_format(str_replace(",",".",$valor_entrada), 2, ',', '.');  
+                        }else if(formatoRealVrg($valor_entrada) == true)
+                        { 
+                            //        echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
+                                $valorFinExibe  =    number_format(str_replace(",",".",$valor_entrada), 2, ',', '.');  
+                            $valor_entrada  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valor_entrada)) ));
+                        }else
+                        {
+                            echo "O valor digitado não esta nos parametros solicitados";
+                                    echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                                    <script type=\"text/javascript\">
+                                                    alert(\"O valor digitado não esta nos parametros solicitados. Tente novamente! Linha: ". __LINE__ . "\");
+                                                    </script>";	
+                                exit;  
+
+
+                        }
                     }
-            }
-        }             
-           
-            $this->db->where('id_fin', $id);
-            $this->db->delete('aenpfin');
-           //**** Execução de RECALCULAR OS SALDOS desde o mês anterior a alteração 
-            {
+                            if ( $id_saida == $id )
+                            {                
+                            $this->db->where('id_presente', $id_presente);
+                            $this->db->delete('presentes_especiais');
+                            }else 
+                            {
+                                if( $contar == 1)
+                                {  
+                                    $valor_pendente = $valor_entrada;
+                                }else
+                                {
+                                    $valor_pendente = $valor_pendente - $id_saidaAnt;
+                                    if ( $contar == $contPre )
+                                    {
+                                        $datapresUp = array(
+                                            'id_saida'      => $id_saidaAnt,
+                                            'data_presente' => $data_presenteAnt,
+                                            'valor_saida'   => $valor_saidaAnt,
+                                            'valor_pendente'=> $valor_pendente
+                                        );
+                                        $datapresUpFIm = array(
+                                            'id_saida'      => 0,
+                                            'data_presente' => $data_presente,
+                                            'valor_saida'   => $valor_saida,
+                                            'valor_pendente'=> $valor_pendente
+                                        );
+                                    if ($this->vendas_model->edit('presentes_especiais', $datapresUpFIm, 'id_presente', $id_presente) == TRUE) 
+                                    {}
+                                    } else
+                                    {
+                                        $datapresUp = array(
+                                            'id_saida'      => $id_saidaAnt,
+                                            'data_presente' => $data_presenteAnt,
+                                            'valor_saida'   => $valor_saidaAnt,
+                                            'valor_pendente'=> $valor_pendente
+                                        );
+                                        }  
+                                    if ($this->vendas_model->edit('presentes_especiais', $datapresUp, 'id_presente', $id_Ant) == TRUE) 
+                                    {}
+                                }
+                                $id_Ant = $id_presente;
+                            }
+                                $data_presenteAnt = $data_presente;
+                                $id_saidaAnt = $id_saida;
+                                $valor_saidaAnt = $valor_saida;
+                            ++$contar;
+                        }
+                            if ($id_reconc !== null)
+                            {
+                                $this->db->where('id_reconc', $id);
+                            $this->db->delete('reconc_bank');
+                            }
+                    }
+                }             
                 
-                $dia_1_mes = primeiroDiaMes($dataFin);
-            //	$saldo_mes_lancamento = "N";
-           //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********			
-            $sAnt_Fin = $this->vendas_model->getS_antesFin('aenpfin',$datainicioLimite,$dia_1_mes,$conta, $tipoCont_Atual);
-           
-               //ID, valor do saldo e a data do registro com o penultimo saldo marcado
-							$id_saldo_Penultimo = $sAnt_Fin->id_fin; 
-							if(null != $sAnt_Fin->saldo) $saldo_Penultimo = $sAnt_Fin->saldo; else $saldo_Penultimo = $datainicioLimite; 	
-							$data_saldo_Penultimo = $sAnt_Fin->dataFin;
-						$alterados = '';	
-                        //******busca de todos registro, após o penultimo saldo *********		
-             $lancaments = $this->vendas_model->getLancPosSaldo('aenpfin','*',$data_saldo_Penultimo,$conta, $tipoCont_Atual);
+                $this->db->where('id_fin', $id);
+                $this->db->delete('aenpfin');
+                //**** Execução de RECALCULAR OS SALDOS desde o mês anterior a alteração 
+                {
+                    
+                    $dia_1_mes = primeiroDiaMes($dataFin);
+                        //	$saldo_mes_lancamento = "N";
+                    //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********		
+                    $sAnt_Fin = $this->vendas_model->getS_antesFin('aenpfin',$datainicioLimite,$dia_1_mes,$conta, $tipoCont_Atual);
+                
+                    //ID, valor do saldo e a data do registro com o penultimo saldo marcado
+                    $id_saldo_Penultimo = $sAnt_Fin->id_fin; 
+                    if(null != $sAnt_Fin->saldo) $saldo_Penultimo = $sAnt_Fin->saldo; else $saldo_Penultimo = $datainicioLimite; 	
+                    $data_saldo_Penultimo = $sAnt_Fin->dataFin;
+                    $alterados = '';	
+                    //******busca de todos registro, após o penultimo saldo *********		
+                    $lancaments = $this->vendas_model->getLancPosSaldo('aenpfin','*',$data_saldo_Penultimo,$conta, $tipoCont_Atual);
 
-           //inicia variavel do dia final do mes do registro anterior com o dia fim do mês do lançamento								
-                $fim_mes = ultimoDiaMes($dataF);
+                    //inicia variavel do dia final do mes do registro anterior com o dia fim do mês do lançamento								
+                    $fim_mes = ultimoDiaMes($dataF);
 
-                $s_anterior =	$saldo_Penultimo;
-            //	while ($maisRecent = mysqli_fetch_assoc($maisRecentes)) 
-           $alterados = '';     
-            foreach ($lancaments as $lanc) 
-                {	
-
-                        $ent_Sai = $lanc->ent_Sai;
-                        if ($ent_Sai == 0) {
-                        $s_Atual = $s_anterior - $lanc->valorFin;//$valorFin;
-                        }else if ($ent_Sai == 1){
-                            $s_Atual = $s_anterior + $lanc->valorFin;
-                        }	
-                $dataSal = array(
-                        'saldo' => $s_Atual
-                    );
-
-                    if ($this->vendas_model->edit('aenpfin', $dataSal, 'id_fin', $lanc->id_fin) == TRUE) {
-                        $alterados = $alterados.'Id:'.$lanc->id_fin.' saldo:'.$s_Atual;
-                    } 
-
-                    $s_anterior =	$s_Atual;
-                    if(isset($dataX)) { $d_anterior = $dataX;} 
-                    $dataX =  $lanc->dataFin;
-                    $data_ultimo_dia = ultimoDiaMes($dataX);//inicia variavel do dia final do mes do registro atual
-
-                            $sMes = 'N';
-                    if(isset($id_anterior))									
-                    {							
-                        if($dataX > $fim_mes)
+                    $s_anterior =	$saldo_Penultimo;
+                    //	while ($maisRecent = mysqli_fetch_assoc($maisRecentes)) 
+                    $alterados = '';     
+                    foreach ($lancaments as $lanc) 
                         {	
-                            $dataSalM = array('saldo_Mes' => "S");// Marca se for o ultimos registro de saldos de cada mes 
-                            $sMes = '><font color = blue ><strong> S </strong></font>';
-                        }else 
-                            $dataSalM = array('saldo_Mes' => "N");
 
-                    if ($this->vendas_model->edit('aenpfin', $dataSalM, 'id_fin', $id_anterior) == TRUE) {
-                        $alterados = $alterados.' -'.$sMes.'-, ';
-                    } 
+                            $ent_Sai = $lanc->ent_Sai;
+                            if ($ent_Sai == 0) {
+                            $s_Atual = $s_anterior - $lanc->valorFin;//$valorFin;
+                            }else if ($ent_Sai == 1){
+                                $s_Atual = $s_anterior + $lanc->valorFin;
+                            }	
+                            $dataSal = array(
+                                'saldo' => $s_Atual
+                            );
 
+                            if ($this->vendas_model->edit('aenpfin', $dataSal, 'id_fin', $lanc->id_fin) == TRUE) {
+                                $alterados = $alterados.'Id:'.$lanc->id_fin.' saldo:'.$s_Atual;
+                            } 
+
+                            $s_anterior =	$s_Atual;
+                            if(isset($dataX)) { $d_anterior = $dataX;} 
+                            $dataX =  $lanc->dataFin;
+                            $data_ultimo_dia = ultimoDiaMes($dataX);//inicia variavel do dia final do mes do registro atual
+
+                                    $sMes = 'N';
+                            if(isset($id_anterior))									
+                            {							
+                                if($dataX > $fim_mes)
+                                {	
+                                    $dataSalM = array('saldo_Mes' => "S");// Marca se for o ultimos registro de saldos de cada mes 
+                                    $sMes = '><font color = blue ><strong> S </strong></font>';
+                                }else 
+                                    $dataSalM = array('saldo_Mes' => "N");
+
+                            if ($this->vendas_model->edit('aenpfin', $dataSalM, 'id_fin', $id_anterior) == TRUE) {
+                                $alterados = $alterados.' -'.$sMes.'-, ';
+                            } 
+
+                            }
+                            $iD_Fin = $lanc->id_fin;
+                            //   $alterados = $alterados.'Id:'.$lanc->id_fin.' saldo:'.$s_Atual;
+                            //*****Para verificar lista com as alterações feitas e encontrar erros
+                            //  echo '<font color=red size="2"> Conta '.$maisRecent['conta'].' | Tipo '.$maisRecent['tipo_Conta'].' | Data '.$maisRecent['dataFin']. ' | Valor </font> <font color=green>'.$maisRecent['valorFin']. ' </font> <font color=red> | Registro '.$iD_Fin. ' | Saldo alterado para '.$s_Atual. ' </font><br />';	                                    
+                            $id_anterior = $lanc->id_fin;
+                            $fim_mes = $data_ultimo_dia;									
                     }
-                    $iD_Fin = $lanc->id_fin;
-                 //   $alterados = $alterados.'Id:'.$lanc->id_fin.' saldo:'.$s_Atual;
-                    //*****Para verificar lista com as alterações feitas e encontrar erros
-                    //  echo '<font color=red size="2"> Conta '.$maisRecent['conta'].' | Tipo '.$maisRecent['tipo_Conta'].' | Data '.$maisRecent['dataFin']. ' | Valor </font> <font color=green>'.$maisRecent['valorFin']. ' </font> <font color=red> | Registro '.$iD_Fin. ' | Saldo alterado para '.$s_Atual. ' </font><br />';	                                    
-                    $id_anterior = $lanc->id_fin;
-                    $fim_mes = $data_ultimo_dia;									
                 }
+                $alterados = ' Alterados:'.$alterados;
+                if ($contPre !== null)
+                {
+                $this->session->set_flashdata('success','Lançamento e registro de presente excluído com sucesso! Saldos alterados: '.$alterados);
+                }else {$this->session->set_flashdata('success','Lançamento  excluído com sucesso! Saldos alterados: '.$alterados);}
+                
+                redirect(base_url().'index.php/vendas/gerenciar/'); 
+            }
         }
-            $alterados = ' Alterados:'.$alterados;
-            if ($contPre !== null)
-            {
-            $this->session->set_flashdata('success','Lançamento e registro de presente excluído com sucesso! Saldos alterados: '.$alterados);
-            }else {$this->session->set_flashdata('success','Lançamento  excluído com sucesso! Saldos alterados: '.$alterados);}
-            
-            redirect(base_url().'index.php/vendas/gerenciar/'); 
-        }
-}
     }
     public function autoCompleteProduto(){
         
@@ -2122,7 +2179,7 @@ class Vendas extends CI_Controller {
 						//	$dataF= implode('-',array_reverse(explode('/',$data)));
                                 $data_001 =  primeiroDiaMes($datahj);								
 								$data_007 =  setimoDiadoMes($datahj);
-                    if(($datahj > $data_007) && ($dataF < $data_001) && ($senhaAdm <> "aenp@z18"))
+                    if(($datahj > $data_007) && ($dataF < $data_001) && ($senhaAdm <> "aenp@z2023"))
 								{echo "<br/><font color = #458B74 size = 3 text-align:center>Prazo Limite para lançamento referente ao mês anterior aspirado. <br/> 
 								Retorne e altere a data ou contate o administrador.</font><br/>";
                                  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
@@ -2299,7 +2356,7 @@ class Vendas extends CI_Controller {
                             
                             
 						}	
-//*****se for presente especial faz um lançamento 
+        //*****se for presente especial faz um lançamento 
 						if($cod_compassion == ( "D07 - 0730"))//Saída com presentes especiais
 						{
 						//	echo 'linha '. __LINE__;
@@ -2401,7 +2458,7 @@ class Vendas extends CI_Controller {
 						"'','$caixa','$tipoCont','$cod_compassion','$cod_assoc','$num_Doc','$numDocFiscal',
 						'$razaoSoc','$descri','$dataF','$valorFin','$ent_Sai','$saldo_Final','$saldo_mes_lancamento','$cadastrante'"); 
 						*/
-//******busca do ultimo registro com o saldo do mês marcado *********
+        //******busca do ultimo registro com o saldo do mês marcado *********
 						$sql_Saldo_Atual = 'SELECT id_fin, saldo, dataFin FROM aenpfin 					
 											WHERE dataFin > "2019-01-01" and 
 											conta = '.$caixa.'  and tipo_Conta = "'.$tipoCont.'"
@@ -2426,7 +2483,7 @@ class Vendas extends CI_Controller {
 							$dataUlt_saldo = $row_Saldo['dataFin'];
 												
 						}
-//*****se pagamento for em cheque faz um lançamento de reconciliação bancária
+        //*****se pagamento for em cheque faz um lançamento de reconciliação bancária
 						
 						if($tipo_Pag == "cheque") 
 						{	$res_max = mysqli_query($conex, 'SELECT id_fin FROM aenpfin ORDER BY id_fin DESC LIMIT 1 ');
@@ -2454,7 +2511,7 @@ class Vendas extends CI_Controller {
 						
                                     
 
-//*****se for presente especial faz um lançamento 
+        //*****se for presente especial faz um lançamento 
 											
 						if($cod_compassion == ( "R01 - 1030"))//Entrada com presentes especiais
 						{	$res_max = mysqli_query($conex, 'SELECT id_fin FROM aenpfin ORDER BY id_fin DESC LIMIT 1 ');
@@ -2520,13 +2577,13 @@ class Vendas extends CI_Controller {
 								$contar = $contar+1;							
 							}
 						}	
-// ******* Se a data do ultimo saldo for maior que a do lançamento altera todos saldos posteriores			
+        // ******* Se a data do ultimo saldo for maior que a do lançamento altera todos saldos posteriores			
 						//$saldo_mes_lancamento = "S";
 						//if( $dataF < $dataUlt_saldo)
 					 //	{**** primeiro dia do mês do lançamento
 							$dia_1_mes = primeiroDiaMes($dataF);
 						//	$saldo_mes_lancamento = "N";
-	//******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********				
+	    //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********				
                 $id_anterior = null;
                 $saldo_mes = 'N';
 							$saldo_Penultimo = 'SELECT id_fin, saldo, dataFin FROM aenpfin 					
@@ -2550,7 +2607,7 @@ class Vendas extends CI_Controller {
 							$data_saldo_Penultimo = $row_saldo_Penultimo['dataFin'];
 												
 						}
-//******busca de todos registro, após o penultimo saldo *********						
+        //******busca de todos registro, após o penultimo saldo *********						
 									$maisRecentes = mysqli_query($conex, 'SELECT id_fin, conta, tipo_Conta, dataFin, ent_Sai, valorFin, saldo FROM aenpfin 
 															WHERE  dataFin > "'.$data_saldo_Penultimo.'" 
 															and conta like "'.$caixa.'" and tipo_Conta like "'.$tipoCont.'" 
@@ -2564,7 +2621,7 @@ class Vendas extends CI_Controller {
 								if (mysqli_num_rows($maisRecentes) == 0 ) 
 								{	echo "Nao foi encontrado nenhum registro após o penultimo saldo. Tente novamente!";
 								}								
-	//inicia variavel do dia final do mes do registro anterior com o dia fim do mês do lançamento								
+	    //inicia variavel do dia final do mes do registro anterior com o dia fim do mês do lançamento								
 								$fim_mes = ultimoDiaMes($dataF);
 								
 								$s_anterior =	$saldo_Penultimo;

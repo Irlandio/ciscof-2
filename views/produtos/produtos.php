@@ -167,7 +167,7 @@ if(!$results){?>
                 $vPendente  += $r->valor_pendente;
                 
                 $vpend = $r->valor_pendente;
-                $cor1 = (($vpend >= 0.2) ? '<font color = red >' : ($vpend < -2)) ? '<font color = #893306 >' : '<font color = blue >';
+                $cor1 = ($vpend >= 0.2) ? '<font color = red >' : ($vpend < -2) ? '<font color = #893306 >' : '<font color = blue >';
             echo '<tr>';
             echo '<td>'.$r->id_presente.'</td>';
             echo '<td>'.date('d/m/Y', strtotime($r->data_presente)).'</td>';

@@ -7,31 +7,51 @@
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/dist/plugins/jqplot.donutRenderer.min.js"></script>
 
 <!--Action boxes-->
-  <div class="container-fluid">
-      <h5> CiScoF (Cadastro de Informação e Suporte de controle Financeiro)</h5>
-    <div class="quick-actions_homepage">
-      <ul class="quick-actions">
-        <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vVenda')){ ?>
-            <li class="bg_ls"> <a href="<?php echo base_url()?>index.php/vendas"><i class="icon-folder-open"></i> Lançamentos</a></li>
-        <?php } ?>
-        <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vCliente')){ ?>
-            <li class="bg_lg"> <a href="<?php echo base_url()?>index.php/clientes"> <i class="icon-group"></i> Beneficiários</a> </li>
-        <?php } ?>
-        <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vProduto')){  ?>
-            <li class="bg_lb"> <a href="<?php echo base_url()?>index.php/produtos"> <i class="icon-group"></i> Presentes Especiais <font color='#e6f805'> Novo</font></a></li>
-        <?php  } ?>
-        <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vServico')){ ?>
-            <li class="bg_lb"> <a href="<?php echo base_url()?>index.php/servicos"> <i class="icon-group"></i> Códigos</a> </li>
-        <?php } ?>
-        <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vOs')){ ?>
-            <li class="bg_lb"> <a href="<?php echo base_url()?>index.php/financeiro/lancamentos?periodo=todos&situacao=todos"> <i class="icon-tags"></i> R. Bancária</a> </li>
-        <?php } ?>        
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <td>
+                <div class="container-fluid">
+                    <h5> CiScoF (Cadastro de Informação e Suporte de controle Financeiro)</h5>
+                    <div class="quick-actions_homepage">
+                        <ul class="quick-actions">
+                            <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vVenda')){ ?>
+                                <li class="bg_ls"> <a href="<?php echo base_url()?>index.php/vendas"><i class="icon-folder-open"></i> Lançamentos</a></li>
+                            <?php } ?>
+                            <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vCliente')){ ?>
+                                <li class="bg_lg"> <a href="<?php echo base_url()?>index.php/clientes"> <i class="icon-group"></i> Beneficiários</a> </li>
+                            <?php } ?>
+                            <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vProduto')){  ?>
+                                <li class="bg_lb"> <a href="<?php echo base_url()?>index.php/produtos"> <i class="icon-group"></i> Presentes Especiais <font color='#e6f805'> Novo</font></a></li>
+                            <?php  } ?>
+                            <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vServico')){ ?>
+                                <li class="bg_lb"> <a href="<?php echo base_url()?>index.php/servicos"> <i class="icon-group"></i> Códigos</a> </li>
+                            <?php } ?>
+                            <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vOs')){ ?>
+                                <li class="bg_lb"> <a href="<?php echo base_url()?>index.php/financeiro/lancamentos?periodo=todos&situacao=todos"> <i class="icon-tags"></i> R. Bancária</a> </li>
+                            <?php } ?>                        
+                        </ul>
+                    </div>
+                </div>
+            </td>
+            <td style="width: 10%" rowspan=2><a href="<?php echo base_url()?>index.php/mapos/minhaConta"><img src=" <?php echo $usuario->url_foto; ?> " style="max-width: 250px; height: 250px"/></a>
+            </td>
+        </tr>
+    </tbody>
+</table>  
+<!--End-Action boxes-->
+<?php 
+// var_dump($this->session->userdata);
+// Quantidade de contas contas_qtd
+// Variaveis com dados das contas
+// ["conta1_id"]=> string(1) "1" 
+// ["conta1_nome"]=> string(15) "IEADALPE-1444-3" 
+// ["conta1_banco"]=> string(8) "Bradesco" 
+// ["conta1_agencia"]=> string(4) "2080"
+// ["conta1_n_conta"]=> string(6) "1444-3"
+// var_dump($this->session->userdata);
+?>
 
-        
-      </ul>
-    </div>
-  </div>  
-<!--End-Action boxes-->  
 
 
 
@@ -42,43 +62,19 @@
         
         <div class="widget-box">
             <div class="widget-title"><span class="icon"><i class="icon-signal"></i></span><h5>Quantidades de Lançamentos no mês atual</h5>                
-        <?php 
-            $caixaNome[1] = "IEADALPE - 1444-3";    $total[1] = 0;
-            $caixaNome[2] = "22360-3";              $total[2] = 0;
-            $caixaNome[3] = "ILPI";                 $total[3] = 0;
-            $caixaNome[4] = "BR214";                $total[4] = 0;
-            $caixaNome[5] = "BR214(Anexo)";         $total[5] = 0;
-            $caixaNome[6] = "BR542";                $total[6] = 0;
-            $caixaNome[7] = "BR549";                $total[7] = 0;
-            $caixaNome[8] ="BR579";                 $total[8] = 0;
-            $caixaNome[9] = "BB 28965-5";           $total[9] = 0;
-            $caixaNome[10] = "CEF 1948-4";          $total[10] = 0; 
-                        $cor[1] = "#0085cc";     
-                        $cor[2] = "#0085cc";  
-                        $cor[3] = "#0085cc"; 
-						$cor[4] = "#4b5de4"; 
-						$cor[5] = "#4b5de4";  
-						$cor[6] = "#4b5de4"; 
-						$cor[7] = "#4b5de4";  
-						$cor[8] = "#4b5de4";  
-						$cor[9] = "#0085cc";  
-						$cor[10] = "#0085cc";
+        <?php
+            $caixaNome = array();
+
+            for ($c = 1 ; $c <= $this->session->userdata('contas_qtd'); $c++)
+            {
+                $caixaNome[$c] = $this->session->userdata('conta'.$c.'_nome');
+                $total[$c] = 0;
+                $cor[$c] = $c < 4 || $c > 8 ? '#0085cc' : '#4b5de4';
+            }
     foreach ($os as $o) 
     {
-    switch ($o->conta) 
-					{
-						case 1:   ++$total[1]  ;  $cor[1] = "#0085cc"; break;    
-						case 2:	  ++$total[2]  ;  $cor[2] = "#0085cc";break;  
-						case 3:	  ++$total[3]  ;  $cor[3] = "#0085cc";break;  
-						case 4:	  ++$total[4]  ;  $cor[4] = "#4b5de4";break;  
-						case 5:	  ++$total[5]  ;  $cor[5] = "#4b5de4";break;  
-						case 6:	  ++$total[6]  ;  $cor[6] = "#4b5de4";break;  
-						case 7:	  ++$total[7]  ;  $cor[7] = "#4b5de4";break;  
-						case 8:	  ++$total[8]  ;  $cor[8] = "#4b5de4";break;  
-						case 9:	  ++$total[9]  ;  $cor[9] = "#0085cc";break;  
-						case 10:  ++$total[10] ;  $cor[10] = "#0085cc";break;  				
-					}
-           // echo "['".$caixaNome."', ".$o->total."],";
+        ++$total[$o->conta]  ;
+        $cor[$o->conta] = $o->conta < 4 || $o->conta > 8 ? '#0085cc' : '#4b5de4';
         }
                         ?></div>
             <div class="widget-content">
@@ -110,6 +106,74 @@
 
 
 <div class="row-fluid" style="margin-top: 0">
+    <div class="span12">
+        
+        <div class="widget-box">
+            <div class="widget-title"><span class="icon"><i class="icon-signal"></i></span><h5>Ultimos Usuários logados</h5></div>
+            <div class="widget-content">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Usuário</th>
+                            <th>Momento do Login</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        if($logsSessions != null){
+                            $users = array();
+                            foreach ($logsSessions as $rl) {
+                                // if($rl->ent_Sai == 1){$sinal = " "; $corV = "#130be0";} else
+                                //             {  $sinal = "-"; $corV = "#fa0606";}  
+                                // $valorFinExibe  =    number_format(str_replace(",",".",$rl->valorFin), 2, ',', '.');
+                                
+                                $dados = serialize($rl->data);
+                                $logtempo = date('d/m/Y H:i:s' ,$rl->timestamp);
+                                $datalog = explode(';', $dados);
+                                $dados = array();
+                                $key = 0;
+                                foreach ($datalog as $dl) {
+                                    if($key > 0 && $key < 4 )
+                                    {
+                                        $arr = explode('|', $dl);
+                                        $index = $arr[0];
+                                        if(isset($arr[1]))
+                                        $val = explode(':', $arr[1]);
+                                        if($index == 'nome')
+                                        $nomeuser = $val[2];
+                                        // echo $val[2];
+                                    }
+                                    $key++;
+                                }
+                                if(!in_array($nomeuser,$users))
+                                {
+                                    $users[] = $nomeuser;
+                                    echo '<tr>';
+                                    echo '<td></td>';
+                                    echo '<td>'.$nomeuser.'</td>';
+                                    echo '<td>'.$logtempo.'</td>';
+                                    // echo '<td  style="text-align:right;">R$ <font color='.$corV.'>'.$sinal.'  '.$valorFinExibe.'</font></td>';
+                                    // echo '<td>';
+                                    // if($this->permission->checkPermission($this->session->userdata('permissao'),'eUsuario')){
+                                        // echo '<a href="'.base_url().'index.php/produtos/editar/'.$rl->id_fin.'" class="btn btn-info"> <i class="icon-pencil" ></i> </a>  '; 
+                                    // }
+                                    // echo '</td>';
+                                    echo '</tr>';
+                                }
+                            }
+                        }
+                        else{
+                            echo '<tr><td colspan="3">Nenhum produto com estoque baixo.</td></tr>';
+                        }    
+
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     
     <div class="span12">
         

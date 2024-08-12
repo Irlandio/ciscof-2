@@ -19,8 +19,14 @@ class Usuarios_model extends CI_Model {
         $this->db->from('usuarios');
         $this->db->select('usuarios.*, permissoes.nome as permissao, caixas.*');
         $this->db->limit($perpage,$start);
-        $this->db->join('permissoes', 'usuarios.permissoes_id = permissoes.idPermissao', 'left');
-        $this->db->join('caixas', 'usuarios.conta_Usuario = caixas.id_caixa', 'left');
+        $this->db->join('permissoes', 'usuarios.permissoes_Geral = permissoes.idPermissao', 'left');
+        $this->db->join('caixas', 'usuarios.conta_Usuario = caixas.id_caixa', 'left');     
+        $this->db->order_by('situacao','desc');
+        $this->db->order_by('permissoes_Geral','asc');
+        $this->db->order_by('celular','desc'); 
+        $this->db->order_by('conta_Usuario','asc');       
+        $this->db->order_by('nome','asc');
+        
   
         $query = $this->db->get();
         
@@ -43,6 +49,13 @@ class Usuarios_model extends CI_Model {
         $this->db->join('caixas', 'usuarios.conta_Usuario = caixas.id_caixa', 'left');
         $this->db->limit(1);
         return $this->db->get('usuarios')->row();
+    }
+    
+    function getByIdPermissao($id,$indice = 'idPermissao'){
+        $this->db->select('permissoes.*');
+        $this->db->where($indice,$id);
+        $this->db->limit(1);
+        return $this->db->get('permissoes')->row();
     }
     
     function add($table,$data){

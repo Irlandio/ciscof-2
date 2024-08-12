@@ -1,5 +1,5 @@
 	
-    <style>
+ <style>
 .badgebox
 {    opacity: 0;}
 .badgebox + .badge
@@ -13,22 +13,59 @@
 <link rel="stylesheet" href="<?php echo base_url();?>assets/js/jquery-ui/css/smoothness/jquery-ui-1.9.2.custom.css" />
 <script type="text/javascript" src="<?php echo base_url()?>assets/js/jquery-ui/js/jquery-ui-1.9.2.custom.js"></script>
 <script type="text/javascript" src="<?php echo base_url()?>assets/js/jquery.validate.js"></script>
-		  	<?php
+<?php
 
-            if($usuario->conta_Usuario == 99)
-                      { $contaNome = "Todas contas";
+    if($usuario->conta_Usuario == 99)
+        { 
+        $contaNome = "Todas contas";               
+        $lColunaAlteracoes = $this->session->userdata('id')== 29 ? '5%' : '25%';
+        }else
+            { 
+                $contaNome = $usuario->nome_caixa;
+                $lColunaAlteracoes = '5%';
+            }
+    $conta = $usuario->conta_Usuario;
+    $nivel = $usuario->permissoes_Geral;	
+    $tipo_conta_acesso = $usuario->celular;
+
+    $_SESSION['t_Cont'] = "0";
+
+        include 'apoio/funcao.php';
+        function verificaPermissoesData($dataFin, $ct, $acao = 'e'){
+            $ct = $ct < 10 ? '0'.$ct : $ct;
+            $hoje = date('Y-m-d');
+            $dia07 = date('Y-m-07');
+            $mesAtual01 = date('Y-m-01');
+            $mes_atraz_1 = date('Y-m-d', strtotime("-1 month", strtotime($mesAtual01)));
+            $mes_atraz_3  = date('Y-m-d', strtotime("-3 month", strtotime($mesAtual01)));
+            $mes_atraz_6  = date('Y-m-d', strtotime("-6 month", strtotime($mesAtual01)));
+            $mes_atraz_12  = date('Y-m-d', strtotime("-12 month", strtotime($mesAtual01)));
+            if(($hoje <= $dia07 && $dataFin >= $mes_atraz_1) ||( $hoje > $dia07 && $dataFin >= $mesAtual01))
+                {
+                    return $acao.'Venda';
+                }else
+                if($dataFin >= $mes_atraz_1)
+                    {
+                        return $acao.'C'.$ct.'_01';
+                    }else
+                if($dataFin >= $mes_atraz_3)
+                    {
+                        return $acao.'C'.$ct.'_03';
+                    }else
+                    if($dataFin >= $mes_atraz_6)
+                        {
+                             return $acao.'C'.$ct.'_06';
                         }else
-                          { $contaNome = $usuario->nome_caixa;
-                              
-                  }
-            $conta = $usuario->conta_Usuario;
-			$nivel = $usuario->permissoes_id;	
-            $tipo_conta_acesso = $usuario->celular;
-
-            $_SESSION['t_Cont'] = "0";
-
-              include 'apoio/funcao.php';
+                        if($dataFin >= $mes_atraz_12)
+                            {
+                                 return $acao.'C'.$ct.'_12';
+                            }else
+                            {
+                                return false;}
+        }
+    
  ?>
+
 
 <div class="row-fluid" style="margin-top:0">
     <div class="span12">
@@ -120,19 +157,7 @@
                                                 <label for="numeroDocFiscal"><h5>Lançamento de <?php   echo $e_S; ?></h5></label>
                                                  <?php 
                                                 
-//                                                switch ($result_A->conta_Destino) 
-//                                                        {						    
-//                                                            case 1:	$cDestinoNome = "IEADALPE - 1444-3";	break;    
-//                                                            case 2:	$cDestinoNome = "22360-3";	break;  
-//                                                            case 3:	$cDestinoNome = "ILPI";	break;  
-//                                                            case 4:	$cDestinoNome = "BR214";	break;  
-//                                                            case 5:	$cDestinoNome = "BR518";	break;  
-//                                                            case 6:	$cDestinoNome = "BR542";	break;  
-//                                                            case 7:	$cDestinoNome = "BR549";	break;  
-//                                                            case 8:	$cDestinoNome = "BR579";	break;  
-//                                                            case 9:	$cDestinoNome = "BB 28965-5";	break;  
-//                                                            case 10:$cDestinoNome = "CEF 1948-4";	break; 				
-//                                                        }                       
+                                                                       
                                                 
                                                 foreach ($result_caixas as $caixa) 
                                                 { 
@@ -239,16 +264,19 @@
                          <?php
                               echo 'Conta '. $conta.' Nivel '. $nivel.' Acesso de conta '. $tipo_conta_acesso ;
                                 foreach ($result_caixas as $rcx) {   
-                                        $caixanoNome = $rcx->nome_caixa;
-                                        if($rcx->id_caixa == 4)
-                                            $caixanoNome = 'BR-214-(Sede)';
-                                        if($rcx->id_caixa == 5)
-                                            $caixanoNome = 'BR-214-(Anexo-01)';
-                                      if($usuario->conta_Usuario == 99)
-                                      {?>
-                                    <option value = "<?php echo $rcx->id_caixa ?>"><?php echo $rcx->id_caixa." | ".$caixanoNome ?></option>
-                                            <?php
-                                        }else
+                                    $caixanoNome = $rcx->nome_caixa;
+                                    if($rcx->id_caixa == 4)
+                                        $caixanoNome = 'BR-214-(Sede)';
+                                    if($rcx->id_caixa == 5)
+                                        $caixanoNome = 'BR-214-(Anexo-01)';
+                                    if($usuario->conta_Usuario == 99)
+                                    {
+                                        $permissAddConta = 'aC'.$rcx->id_caixa;
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'), $permissAddConta)){
+                                        ?>
+                                        <option value = "<?php echo $rcx->id_caixa ?>"><?php echo $rcx->id_caixa." | ".$caixanoNome ?></option>
+                                    <?php }
+                                    }else
                                           if($usuario->conta_Usuario == $rcx->id_caixa){
                                               ?>
                                     <option value = "<?php echo $rcx->id_caixa ?>"><?php echo $rcx->id_caixa." | ".$caixanoNome ?></option>
@@ -268,7 +296,7 @@
                            <label  class="btn btn-default" submit><input  name="tipoES" checked="checked" type="radio" value="0"   class="badgebox" style="margin-top:5px;"/> <span class="badge" >&check;</span> Despesa</label>
 
                          <?php 
-                         
+                        //  var_dump($nivel);
                           if($nivel < 3)
                               {
                           ?>
@@ -550,7 +578,7 @@
                         <th><H5>Doc (Banc/Fiscal)</H5></th>
                         <th  width="15%"><H5>Histórico | Descrição detalhada </H5></th>
                         <th><H5>Valor (R$)</H5></th>
-                        <th  width="25%"><H5>Alterações</H5></th>
+                        <th  width="<?= $lColunaAlteracoes ?>"><H5>Alterações</H5></th>
                         <th></th>
                             
                     </tr>
@@ -587,136 +615,149 @@
 
                         if($usuario->conta_Usuario == 99)
                         {
-
-                        $dataVenda = date(('d/m/Y'),strtotime($r->dataFin));
-                        if($r->ent_Sai == 1){$ent_Sai = 'Sim'; $sinal = " "; $corV = "#130be0";} else
-                                            { $ent_Sai = 'Não'; $sinal = "-"; $corV = "#fa0606";}  
+                            
+                            $permissAddConta = 'aC'.$r->conta;
+                            if($this->permission->checkPermission($this->session->userdata('permissao'), $permissAddConta))
                             {
-                             $valorFin = $r->valorFin;
-                                if(formatoRealPntVrg($valorFin) == true) 
-                               {//Verific se o numero digitado é com (.) milhar e (,) decimal
-                                   //serve pra validar  valores acima e abaixo de 1000
-                                    $valorFinExibe  =    $valorFin;   
-                                   $valorFin  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valorFin)) ));
-                               }else if(formatoRealInt($valorFin) == true)
-                               {//Verific se o numero digitado é inteiro sem ponto nem virgula
-                                   //serve pra validar  valores acima e abaixo de 1000
-                                    $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
-                                   $valorFin  =    number_format(str_replace("." , "" ,$valorFin), 2, '.', '');
-                               }else if(formatoRealPnt($valorFin) == true)
-                               {
-                                   $valorFin  =    $valorFin;
-                                    $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
-                               }else if(formatoRealVrg($valorFin) == true)
-                               {
-                                    $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
-                                   $valorFin  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valorFin)) ));
-                               }else
-                               {
-                                   echo "O valor digitado não esta nos parametros solicitados";
-                               }
-                            }
-
-
-                        echo '<tr>';
-
-                        echo '<td><span class="badge" style="background-color: '.$cor.'; border-color: '.$cor.'">'.$r->id_fin.'</span></td>';   
-
-                      //  echo '<td>'.$r->id_fin.'</td>';<font color=red>Razão Social</font>
-                            $caix = $r->conta;
-                        switch ($caix) 
-                                {						    
-                                    case 1:	$corC = "#fa0606";	break;    
-                                    case 2:	$corC = "#ac092e";	break;  
-                                    case 3:	$corC = "#6608b7";	break;  
-                                    case 4:	$corC = "#0d909b";	break;  
-                                    case 5:	$corC = "#570cbe";	break;  
-                                    case 6:	$corC = "#3c61e8";	break;  
-                                    case 7:	$corC = "#0db0eb";	break;  
-                                    case 8:	$corC = "#1f909a";	break;  
-                                    case 9:	$corC = "#fd7908";	break;  
-                                    case 10:$corC = "#935103";	break; 				
-                                }                  
-                            $tipoC = $r->tipo_Conta;
-                        switch ($tipoC) 
-                                {						    
-						          case "Corrente":	   $cor = "#354789";	break; 
-						          case "Suporte":	    $cor = "red";	break; 
-						          case "Investimento":	$cor = "#3f950a";	break; 
-						          case "Poupança":	   $cor = "#8A9B0F";	break; 
+                                $dataVenda = date(('d/m/Y'),strtotime($r->dataFin));
+                                if($r->ent_Sai == 1){$ent_Sai = 'Sim'; $sinal = " "; $corV = "#130be0";} else
+                                                { $ent_Sai = 'Não'; $sinal = "-"; $corV = "#fa0606";}  
+                                {
+                                $valorFin = $r->valorFin;
+                                    if(formatoRealPntVrg($valorFin) == true) 
+                                {//Verific se o numero digitado é com (.) milhar e (,) decimal
+                                    //serve pra validar  valores acima e abaixo de 1000
+                                        $valorFinExibe  =    $valorFin;   
+                                    $valorFin  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valorFin)) ));
+                                }else if(formatoRealInt($valorFin) == true)
+                                {//Verific se o numero digitado é inteiro sem ponto nem virgula
+                                    //serve pra validar  valores acima e abaixo de 1000
+                                        $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
+                                    $valorFin  =    number_format(str_replace("." , "" ,$valorFin), 2, '.', '');
+                                }else if(formatoRealPnt($valorFin) == true)
+                                {
+                                    $valorFin  =    $valorFin;
+                                        $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
+                                }else if(formatoRealVrg($valorFin) == true)
+                                {
+                                        $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
+                                    $valorFin  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valorFin)) ));
+                                }else
+                                {
+                                    echo "O valor digitado não esta nos parametros solicitados";
                                 }
-                            if ($r->cod_compassion == "III-III") $cod_compassi = '--- '; else  $cod_compassi = $r->cod_compassion; 
-                        echo '<td>'.$dataVenda.'<br><font color='.$corC.'>'.$caixaNome.'</font> </td>
-                        <td><font color="#570cbe">'.$cod_compassi.'</font><br><font color="#10840b">'.$r->cod_assoc.'</font> </td>
-                        <td ><font color='.$cor.'>'.$tipoC.'</font><br><font color='.$cor.'>'.$r->tipo_Pag.'</font></td>
-                        <td><font color="#570cbe">'.$r->num_Doc_Banco.'</font><br><font color="#10840b">'.$r->num_Doc_Fiscal.'</font> </td>';
-                                $limite = 100;
-                            if (strlen($r->historico) > $limite) $hist = substr($r->historico,0,$limite).'(...) '; else  $hist = $r->historico.' ';
-                            if (strlen($r->descricao) > $limite) $desc = substr($r->descricao,0,$limite).'(...)'; else  $desc = $r->descricao;
-                             
-                       // echo '<td><a href="'.base_url().'index.php/clientes/visualizar/'.$r->idClientes.'">'.$r->nomeCliente.'</a></td>';tipo_Pag
-                       //echo '<td>'.$r->cod_assoc.' | '.$hist.' | '.strlen($r->descricao).'</a></td>';
-                        echo '<td>'.$hist.' | '.$desc.'</a></td>';
-                        echo '<td style="text-align:right;"><font color='.$corV.'>'.$sinal.'  '.$valorFin.'</font></td>';
-                        ?>
-                        <td>
-                            <textarea id="reg_Alteracao" class="span10" name="reg_Alteracao" readonly rows="1" cols="200"><?=$r->alteracoes?></textarea>
-                        </td>
-                        <?php
-                        echo '<td>';
-                         ?>
-                       <form action="<?php echo current_url(); ?>" method="post" >
-                                  <?php
-                        if($this->permission->checkPermission($this->session->userdata('permissao'),'vVenda')){
-                            echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/visualizar/'.$r->id_fin.'" class="btn tip-top" title="Ver mais detalhes"><i class="icon-eye-open"></i></a>'; 
-                            echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/imprimir/'.$r->id_fin.'" target="_blank" class="btn btn-inverse tip-top" title="Imprimir"><i class="icon-print"></i></a>'; 
-                        }
-                        if($this->permission->checkPermission($this->session->userdata('permissao'),'eVenda')){
-                            echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/editar/'.$r->id_fin.'" class="btn btn-info tip-top" title="Editar lançamento"><i class="icon-pencil icon-white"></i></a>'; 
-                        }
-                        if($this->permission->checkPermission($this->session->userdata('permissao'),'dVenda') ){
-                           ?>
-                            <input type="hidden" id="ent_Sai" name="ent_Sai" value=" <?php echo $r->ent_Sai ?>" />
-                            <input type="hidden" id="idLanc" name="idLanc" value="<?php echo $r->id_fin; ?>" />
-                                <?php  
-                            if(isset($protocoloPres))
-                            {
-                                  ?>
-                            <input type="hidden" id="protocoloPres" name="protocoloPres" value="<?php echo $protocoloPres; ?>" />
-                             <?php
-                            }
-                           if($presentes !== 1)
-                                    {
-                                    if($aneX == 0){?>
-                                         <input type="hidden" id="oP_Exc" name="oP_Exc" value="exclui" />
-
-                                         <button class="btn btn-danger"><i class="icon-remove icon-white" title="Excluir lançamento"></i></button>
-
-                                  <?php
-                                     //   echo '<a href="#modal-excluir" role="button" data-toggle="modal" venda="'.$r->id_fin.'" class="btn btn-danger tip-top" title="Excluir lançamento"><i class="icon-remove icon-white"></i></a>'; 
-                                    }else {
-                                           ?>
-
-                                         <input type="hidden" id="oP_Exc" name="oP_Exc" value="anexo" />
-                                        <button class="btn btn-danger"><i class="icon-lock icon-white" title="Exclua antes o anexo!"></i></button>
-                                  <?php 
-                                        //echo '<a href="#modal-exc" role="button" data-toggle="modal"  class="btn btn-danger tip-top" title="Exclua antes o anexo!"><i class="icon-lock icon-white"></i></a>';  
-                                    }}else 
-                                    {
-                                           ?>
-
-                                         <input type="hidden" id="oP_Exc" name="oP_Exc" value="presentes" />
-                                        <button class="btn btn-danger"><i class="icon-lock icon-white" title="Exclua antes os lançamentos de saida destes presentes!"></i></button>
-                                  <?php
-                                        //echo '<a href="#modal-exc" role="button" data-toggle="modal"  class="btn btn-danger tip-top" title="Exclua antes os lançamentos de saida destes presentes!"><i class="icon-lock icon-white"></i></a>'; 
                                 }
-                                    ?>
-                            </form>
+
+
+                                echo '<tr>';
+
+                                echo '<td><span class="badge" style="background-color: '.$cor.'; border-color: '.$cor.'">'.$r->id_fin.'</span></td>';   
+
+                                //  echo '<td>'.$r->id_fin.'</td>';<font color=red>Razão Social</font>
+                                $caix = $r->conta;
+                                switch ($caix) 
+                                    {						    
+                                        case 1:	$corC = "#fa0606";	break;    
+                                        case 2:	$corC = "#ac092e";	break;  
+                                        case 3:	$corC = "#6608b7";	break;  
+                                        case 4:	$corC = "#0d909b";	break;  
+                                        case 5:	$corC = "#570cbe";	break;  
+                                        case 6:	$corC = "#3c61e8";	break;  
+                                        case 7:	$corC = "#0db0eb";	break;  
+                                        case 8:	$corC = "#1f909a";	break;  
+                                        case 9:	$corC = "#fd7908";	break;  
+                                        case 10:$corC = "#935103";	break; 				
+                                    }                  
+                                $tipoC = $r->tipo_Conta;
+                                switch ($tipoC) 
+                                    {						    
+                                    case "Corrente":	   $cor = "#354789";	break; 
+                                    case "Suporte":	    $cor = "red";	break; 
+                                    case "Investimento":	$cor = "#3f950a";	break; 
+                                    case "Poupança":	   $cor = "#8A9B0F";	break; 
+                                    }
+                                if ($r->cod_compassion == "III-III") $cod_compassi = '--- '; else  $cod_compassi = $r->cod_compassion; 
+                                echo '<td>'.$dataVenda.'<br><font color='.$corC.'>'.$caixaNome.'</font> </td>
+                                <td><font color="#570cbe">'.$cod_compassi.'</font><br><font color="#10840b">'.$r->cod_assoc.'</font> </td>
+                                <td ><font color='.$cor.'>'.$tipoC.'</font><br><font color='.$cor.'>'.$r->tipo_Pag.'</font></td>
+                                <td><font color="#570cbe">'.$r->num_Doc_Banco.'</font><br><font color="#10840b">'.$r->num_Doc_Fiscal.'</font> </td>';
+                                        $limite = 100;
+                                    if (strlen($r->historico) > $limite) $hist = substr($r->historico,0,$limite).'(...) '; else  $hist = $r->historico.' ';
+                                    if (strlen($r->descricao) > $limite) $desc = substr($r->descricao,0,$limite).'(...)'; else  $desc = $r->descricao;
+                                    
+                                // echo '<td><a href="'.base_url().'index.php/clientes/visualizar/'.$r->idClientes.'">'.$r->nomeCliente.'</a></td>';tipo_Pag
+                                //echo '<td>'.$r->cod_assoc.' | '.$hist.' | '.strlen($r->descricao).'</a></td>';
+                                echo '<td>'.$hist.' | '.$desc.'</a></td>';
+                                echo '<td style="text-align:right;"><font color='.$corV.'>'.$sinal.'  '.$valorFin.'</font></td>';
+                                if($this->session->userdata('id')== 29){
+                                    echo '<td></td>';}else{
+                                ?>
+                                <td>
+                                    <textarea id="reg_Alteracao" class="span10" name="reg_Alteracao" readonly rows="1" cols="200"><?=$r->alteracoes?></textarea>
+                                </td>
                                 <?php
                                     }
+                                echo '<td>';
+                                ?>
+                                <form action="<?php echo current_url(); ?>" method="post" >
+                                        <?php
+                                    if($this->permission->checkPermission($this->session->userdata('permissao'),'vVenda')){
+                                        echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/visualizar/'.$r->id_fin.'" class="btn tip-top" title="Ver mais detalhes"><i class="icon-eye-open"></i></a>'; 
+                                        echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/imprimir/'.$r->id_fin.'" target="_blank" class="btn btn-inverse tip-top" title="Imprimir"><i class="icon-print"></i></a>'; 
+                                    }
+                                    if($this->permission->checkPermission($this->session->userdata('permissao'),'eVenda')){
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'e'))){
+                                        echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/editar/'.$r->id_fin.'" class="btn btn-info tip-top" title="Editar lançamento"><i class="icon-pencil icon-white"></i></a>'; }
+                                    }
+                                    if($this->permission->checkPermission($this->session->userdata('permissao'),'dVenda') )
+                                    {
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'd')))
+                                        {
+                                            ?>
+                                            <input type="hidden" id="ent_Sai" name="ent_Sai" value=" <?php echo $r->ent_Sai ?>" />
+                                            <input type="hidden" id="idLanc" name="idLanc" value="<?php echo $r->id_fin; ?>" />
+                                                <?php  
+                                            if(isset($protocoloPres))
+                                            {
+                                                ?>
+                                                <input type="hidden" id="protocoloPres" name="protocoloPres" value="<?php echo $protocoloPres; ?>" />
+                                                <?php
+                                            }
+                                            if($presentes !== 1)
+                                            {
+                                                if($aneX == 0){?>
+                                                    <input type="hidden" id="oP_Exc" name="oP_Exc" value="exclui" />
 
-                        echo '</td>';
-                        echo '</tr>';
+                                                    <button class="btn btn-danger"><i class="icon-remove icon-white" title="Excluir lançamento"></i></button>
+
+                                                <?php
+                                                //   echo '<a href="#modal-excluir" role="button" data-toggle="modal" venda="'.$r->id_fin.'" class="btn btn-danger tip-top" title="Excluir lançamento"><i class="icon-remove icon-white"></i></a>'; 
+                                                }else {
+                                                    ?>
+
+                                                    <input type="hidden" id="oP_Exc" name="oP_Exc" value="anexo" />
+                                                    <button class="btn btn-danger"><i class="icon-lock icon-white" title="Exclua antes o anexo!"></i></button>
+                                                <?php 
+                                                    //echo '<a href="#modal-exc" role="button" data-toggle="modal"  class="btn btn-danger tip-top" title="Exclua antes o anexo!"><i class="icon-lock icon-white"></i></a>';  
+                                                }
+                                            }else 
+                                            {
+                                                ?>
+
+                                                <input type="hidden" id="oP_Exc" name="oP_Exc" value="presentes" />
+                                                <button class="btn btn-danger"><i class="icon-lock icon-white" title="Exclua antes os lançamentos de saida destes presentes!"></i></button>
+                                                <?php
+                                                //echo '<a href="#modal-exc" role="button" data-toggle="modal"  class="btn btn-danger tip-top" title="Exclua antes os lançamentos de saida destes presentes!"><i class="icon-lock icon-white"></i></a>'; 
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                </form>
+                                <?php
+
+                                echo '</td>';
+                                echo '</tr>';
+                            }
                         }else
                         if($r->id_caixa == $usuario->conta_Usuario)
                         {
@@ -790,25 +831,29 @@
                        //echo '<td>'.$r->cod_assoc.' | '.$hist.' | '.strlen($r->descricao).'</a></td>';
                         echo '<td>'.$hist.' | '.$desc.'</a></td>';
                         echo '<td style="text-align:right;"><font color='.$corV.'>'.$sinal.'  '.$valorFin.'</font></td>';
-
+                        echo '<td></td>';
                         echo '<td>';
                          ?>
-                              <form action="<?php echo current_url(); ?>" method="post" >
-                                  <?php
+                        <form action="<?php echo current_url(); ?>" method="post" >
+                            <?php
 
                         if($this->permission->checkPermission($this->session->userdata('permissao'),'vVenda')){
                             echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/visualizar/'.$r->id_fin.'" class="btn tip-top" title="Ver mais detalhes"><i class="icon-eye-open"></i></a>'; 
                            // echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/imprimir/'.$r->id_fin.'" target="_blank" class="btn btn-inverse tip-top" title="Imprimir"><i class="icon-print"></i></a>'; 
                         }
                         if($this->permission->checkPermission($this->session->userdata('permissao'),'eVenda')){
-                            echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/editar/'.$r->id_fin.'" class="btn btn-info tip-top" title="Editar lançamento"><i class="icon-pencil icon-white"></i></a>'; 
+                            if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'e'))){
+                            echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/editar/'.$r->id_fin.'" class="btn btn-info tip-top" title="Editar lançamento"><i class="icon-pencil icon-white"></i></a>'; }
                         }
-                        if($this->permission->checkPermission($this->session->userdata('permissao'),'dVenda') ){
-                             ?>
-                            <input type="hidden" id="ent_Sai" name="ent_Sai" value=" <?php echo $r->ent_Sai ?>" />
-                            <input type="hidden" id="idLanc" name="idLanc" value="<?php echo $r->id_fin; ?>" />
-                             <?php
-                           if($presentes !== 1)
+                        if($this->permission->checkPermission($this->session->userdata('permissao'),'dVenda') )
+                        {
+                            if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'd')))
+                            {
+                                    ?>
+                                    <input type="hidden" id="ent_Sai" name="ent_Sai" value=" <?php echo $r->ent_Sai ?>" />
+                                    <input type="hidden" id="idLanc" name="idLanc" value="<?php echo $r->id_fin; ?>" />
+                                    <?php
+                                if($presentes !== 1)
                                     {
                                     if($aneX == 0){?>
                                          <input type="hidden" id="oP_Exc" name="oP_Exc" value="exclui" />                                 
@@ -826,10 +871,11 @@
                                         <button class="btn btn-danger"><i class="icon-lock icon-white" title="Exclua antes os lançamentos de saida destes presentes!"></i></button>
                                   <?php
                                 }
-                                    ?>
-                            </form>
-                                <?php
-                                    }
+                            }
+                        }
+                                ?>
+                        </form>
+                            <?php
 
                         echo '</td>';
                         echo '</tr>';

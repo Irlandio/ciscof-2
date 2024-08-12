@@ -225,7 +225,8 @@
                                             <label><input  checked="checked"  name="numeroDoc" type="radio" value= "70_porcento" />
                             Pertence aos 70% </label>                                           
                                             <label><input name="numeroDoc" type="radio" value= "30_porcento" />Pertence aos 30%</label><br><br>	
-                                    <?php  } var_dump($result);  ?>
+                                    <?php  } //var_dump($result);  
+                                        ?>
                     </div>
                                     <div class="span5">         
                                         <?php $conta = $result->id_caixa ?>
