@@ -20,7 +20,7 @@ class Vendas extends CI_Controller {
 		$this->load->model('vendas_model','',TRUE);
 		$this->data['menuVendas'] = 'Vendas';
         $_SESSION['DATA_FIM_BR518'] = '2022-11-30';
-        $_SESSION['DATA_LIMITE_INICIO'] = '2022-01-01';
+        $_SESSION['DATA_LIMITE_INICIO'] = '2023-01-01';
 	}
     
     function verificaPermissoesData($dataFin, $ct, $acao = 'e'){
@@ -30,6 +30,8 @@ class Vendas extends CI_Controller {
         $mes_atraz_3  = date('Y-m-d', strtotime("-3 month", strtotime($mesAtual01)));
         $mes_atraz_6  = date('Y-m-d', strtotime("-6 month", strtotime($mesAtual01)));
         $mes_atraz_12  = date('Y-m-d', strtotime("-12 month", strtotime($mesAtual01)));
+        $atraz_2ano  = date('Y-m-d', strtotime("-24 month", strtotime($mesAtual01)));
+        $atraz_3ano  = date('Y-m-d', strtotime("-36 month", strtotime($mesAtual01)));
         $atraz_1ano  = date('Y-01-d', strtotime($mes_atraz_12));
         if($dataFin >= $mes_atraz_1)
             {
@@ -49,7 +51,11 @@ class Vendas extends CI_Controller {
                         }else
                         if($dataFin >= $atraz_1ano)
                             {
-                                if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_1a')){echo 'aLancamento_antigos_1ano'; return true;}
+                                if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_1a')){echo 'aLancamento_antigos_1ano'; return true;
+                                } else 
+                                if($this->session->userdata('id') == 24){
+                                    echo 'aLancamento_antigos_1ano'; return true;
+                                }
                             }else
                         {
                             // echo $acao.'Lancamento_antigos_1ano '.$dataFin.' '.$mes_atraz_1.' '.$mes_atraz_2.' '.$mes_atraz_3.' '.$mes_atraz_12; 
