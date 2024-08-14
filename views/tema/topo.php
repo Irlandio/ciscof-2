@@ -16,7 +16,7 @@
 <script type="text/javascript"  src="<?php echo base_url();?>assets/js/jquery-1.10.2.min.js"></script>
 
 </head>
-<body>
+<body class="cabecalho">
 
 <!--Header-part-->
 <div id="header">
@@ -31,6 +31,7 @@
     <!--    <li class=""><a title="" href="<?php echo site_url();?>/mine"><i class="icon icon-eye-open"></i> <span class="text"> <?php echo $nomeUsuario?> ( Meus Dados)</span></a></li>-->
     <!--    <li class="pull-right"><a href="https://" target="_blank"><i class="icon icon-asterisk"></i> <span class="text">Versão: <?php echo $this->config->item('app_version'); ?></span></a></li>-->
     <li class=""><a title="" href="<?php echo site_url();?>/mapos/sair"><i class="icon icon-share-alt"></i> <span class="text">Sair do Sistema</span></a></li>
+    <li class=""><a title="" href="<?php echo site_url();?>/mapos/sair"><i class="icon icon-share-alt"></i> <span class="text">-BETA-(TESTES)</span></a></li>
     
   </ul>
 
@@ -205,6 +206,13 @@
 
 
 </body>
+ <style type="text/css">
+     
+	.cabecalho {
+	background: #FFFFF0 !important; 
+	}  
+
+</style>
 </html>
 
 

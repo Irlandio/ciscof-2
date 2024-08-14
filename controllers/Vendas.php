@@ -33,6 +33,7 @@ class Vendas extends CI_Controller {
         $atraz_2ano  = date('Y-m-d', strtotime("-24 month", strtotime($mesAtual01)));
         $atraz_3ano  = date('Y-m-d', strtotime("-36 month", strtotime($mesAtual01)));
         $atraz_1ano  = date('Y-01-d', strtotime($mes_atraz_12));
+        $atraz_Definido  = '2023-01-01';
         if($dataFin >= $mes_atraz_1)
             {
                 if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_01')){echo 'aLancamento_antigos_1mes'; echo '1 mês ';return true;}
@@ -53,10 +54,18 @@ class Vendas extends CI_Controller {
                             {
                                 if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_1a')){echo 'aLancamento_antigos_1ano'; return true;
                                 } else 
-                                if($this->session->userdata('id') == 24){
+                                if($this->session->userdata('id') == 24 || ($this->session->userdata('id') == 29 && ($ct == "01" || $ct == "02" || $ct == "09"))){
                                     echo 'aLancamento_antigos_1ano'; return true;
                                 }
                             }else
+                            if($dataFin >=  $atraz_Definido)
+                                {
+                                    if($this->permission->checkPermission($this->session->userdata('permissao'), $acao.'C'.$ct.'_1a')){echo 'aLancamento_antigos_1ano'; return true;
+                                    } else 
+                                    if($this->session->userdata('id') == 24 || ($this->session->userdata('id') == 29 && ($ct == "01" || $ct == "02" || $ct == "09"))){
+                                        echo 'aLancamento_antigos_1ano'; return true;
+                                    }
+                                }else
                         {
                             // echo $acao.'Lancamento_antigos_1ano '.$dataFin.' '.$mes_atraz_1.' '.$mes_atraz_2.' '.$mes_atraz_3.' '.$mes_atraz_12; 
                             return false;}
@@ -941,7 +950,7 @@ class Vendas extends CI_Controller {
             }
 
             echo "Conta lançaento - ".$caixa." | Tipo - ".$tipoCont." | Doc Banco - ".$num_Doc." | Doc Fiscal ".$numDocFiscal." | Histórico ".$razaoSoc." | Data - ".$dataF." | Valor - ".$valorFin." | conta_Destino - ".$conta_Destino." | ent_Sai - ".$ent_Sai;
-            //exit;	
+            // exit;	
             }
                 //******Insere o lançamento na tabela aenpfin*********
                 /*  {				
@@ -951,9 +960,10 @@ class Vendas extends CI_Controller {
                                     </script>";						  
                  exit; 
                 }*/
+                
              if (is_numeric($id = $this->vendas_model->add('aenpfin', $data, true)) )
                 //                if (1==1)
-                {                 
+                {                 var_dump($id);exit;
                    $paginaDestino = "adicionar/";
                     //****** Resgata o ID do lançamento feito
                     $res_max = mysqli_query($conex, 'SELECT id_fin FROM aenpfin ORDER BY id_fin DESC LIMIT 1 ');
@@ -1088,30 +1098,30 @@ class Vendas extends CI_Controller {
                         //	{**** primeiro dia do mês do lançamento
                     $dia_1_mes = primeiroDiaMes($dataF);
                   
-            //******AJUSTE DE SALDO
-            //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
-            //******No caso aqui esta usando como refencia o ultimo saldo de 2018 e recalcula todos os saldos dos lançamentos posteriores***			
-           
-            if($this->ajusteSaldo($caixa,$t_conta,$dataF )==TRUE)
-                echo "<center> "
-                    . '<br>Linha: ' . __LINE__ . "<br>													
-                        <a href='".base_url() . "index.php/vendas/gerenciar'>Voltar a Lançamentos</a></center>";  
-            switch ($caixa) 
-					{						    
-						case 1:	$contaNome = "IEADALPE - 1444-3";	break;    
-						case 2:	$contaNome = "22360-3";	break;  
-						case 3:	$contaNome = "ILPI";	break;  
-						case 4:	$contaNome = "BR214";	break;  
-						case 5:	$contaNome = "BR518";	break;  
-						case 6:	$contaNome = "BR542";	break;  
-						case 7:	$contaNome = "BR549";	break;  
-						case 8:	$contaNome = "BR579";	break;  
-						case 9:	$contaNome = "BB 28965-5";	break;  
-						case 10:$contaNome = "CEF 1948-4";	break; 				
-					}                        
-            $this->session->set_flashdata('success','Lançamento efetuado com sucesso! Conta '.$contaNome.' - '.$tipoCont.' doc '.$num_Doc.' doc Fiscal '.$numDocFiscal.'Razão social '.$razaoSoc.' '.$descri.' - tipo pag '.$tipo_Pag.'. | <strong>Adicione o ANEXO do documento fiscal.</strong>');  
-                redirect(base_url() . 'index.php/vendas/'.$paginaDestino);
-                echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".base_url() . "index.php/vendas/'.$paginaDestino>
+                    //******AJUSTE DE SALDO
+                    //******busca do ultimo registro, anterior ao mês do lançamento, que tenha o saldo do mês marcado *********	
+                    //******No caso aqui esta usando como refencia o ultimo saldo de 2018 e recalcula todos os saldos dos lançamentos posteriores***			
+                
+                    if($this->ajusteSaldo($caixa,$t_conta,$dataF )==TRUE)
+                        echo "<center> "
+                            . '<br>Linha: ' . __LINE__ . "<br>													
+                                <a href='".base_url() . "index.php/vendas/gerenciar'>Voltar a Lançamentos</a></center>";  
+                    switch ($caixa) 
+                            {						    
+                                case 1:	$contaNome = "IEADALPE - 1444-3";	break;    
+                                case 2:	$contaNome = "22360-3";	break;  
+                                case 3:	$contaNome = "ILPI";	break;  
+                                case 4:	$contaNome = "BR214";	break;  
+                                case 5:	$contaNome = "BR518";	break;  
+                                case 6:	$contaNome = "BR542";	break;  
+                                case 7:	$contaNome = "BR549";	break;  
+                                case 8:	$contaNome = "BR579";	break;  
+                                case 9:	$contaNome = "BB 28965-5";	break;  
+                                case 10:$contaNome = "CEF 1948-4";	break; 				
+                            }                        
+                    $this->session->set_flashdata('success','Lançamento efetuado com sucesso! Conta '.$contaNome.' - '.$tipoCont.' doc '.$num_Doc.' doc Fiscal '.$numDocFiscal.'Razão social '.$razaoSoc.' '.$descri.' - tipo pag '.$tipo_Pag.'. | <strong>Adicione o ANEXO do documento fiscal.</strong>');  
+                    redirect(base_url() . 'index.php/vendas/'.$paginaDestino);
+                    echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".base_url() . "index.php/vendas/'.$paginaDestino>
                             <script type=\"text/javascript\">
                             alert(\"Alterações realizada com sucesso. 
                             Novo lançamento. \");										

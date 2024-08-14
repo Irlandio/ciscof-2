@@ -35,7 +35,7 @@ class Vendas_model extends CI_Model {
         $this->db->join('caixas', 'caixas.id_caixa = '.$table.'.conta');
         $this->db->order_by('id_fin','desc');
       //  if($where){ $this->db->where($where);   }
-// condicionais da pesquisa
+        // condicionais da pesquisa
         // condicional de clientes
         if(array_key_exists('pesquisa',$where)){
             if($lista_clientes != null){
@@ -227,7 +227,7 @@ class Vendas_model extends CI_Model {
 
     function getById($id){
 	  //  $this->db->select('aenpfin.*, caixas.*,cod_compassion.*,cod_compassion.descricao as codDescricao, cod_assoc.*, aenpfin.descricao as finDescricao, usuarios.nome');
-//        c.banco, c.agencia, c.n_conta, c.contabCCusto, c.codCC_Sist_Contabil, 
+        //        c.banco, c.agencia, c.n_conta, c.contabCCusto, c.codCC_Sist_Contabil, 
         $aDATA_FIM_BR518 = $_SESSION['DATA_FIM_BR518'];
         $this->db->select('aenpfin.*, c.id_caixa, 
         IF(c.id_caixa != 5, c.nome_caixa, IF(aenpfin.dataFin > "'.$aDATA_FIM_BR518.'", "BR214(Anexo-01)", c.nome_caixa)) AS nome_caixa,
@@ -235,7 +235,7 @@ class Vendas_model extends CI_Model {
         aenpfin.descricao as finDescricao, usuarios.nome');
         $this->db->from('aenpfin');
         $this->db->join('caixas c',' c.id_caixa = aenpfin.conta');
-   //     $this->db->join('cod_compassion',' cod_compassion.cod_Comp = aenpfin.cod_compassion');
+        //     $this->db->join('cod_compassion',' cod_compassion.cod_Comp = aenpfin.cod_compassion');
      //   $this->db->join('cod_assoc',' cod_assoc.cod_Ass = aenpfin.cod_assoc');
         $this->db->join('usuarios',' usuarios.idUsuarios = aenpfin.cadastrante');
         $this->db->where('aenpfin.id_fin',$id);
@@ -319,7 +319,7 @@ class Vendas_model extends CI_Model {
 			return TRUE;
 		}
 		
-		return FALSE;       
+		return mysql_errno($link) . ": " . mysql_error($link);       
     }
     
     function edit($table,$data,$fieldID,$ID){
