@@ -31,7 +31,7 @@
     $_SESSION['t_Cont'] = "0";
 
         include 'apoio/funcao.php';
-        function verificaPermissoesData($dataFin, $ct, $acao = 'e'){
+        function verificaPermissoesData($dataFin, $ct, $acao = 'e', $idUser = 0){
             $ct = $ct < 10 ? '0'.$ct : $ct;
             $hoje = date('Y-m-d');
             $dia07 = date('Y-m-07');
@@ -40,6 +40,7 @@
             $mes_atraz_3  = date('Y-m-d', strtotime("-3 month", strtotime($mesAtual01)));
             $mes_atraz_6  = date('Y-m-d', strtotime("-6 month", strtotime($mesAtual01)));
             $mes_atraz_12  = date('Y-m-d', strtotime("-12 month", strtotime($mesAtual01)));
+            $atraz_Definido  = $_SESSION['DATA_LIMITE_INICIO'];
             if(($hoje <= $dia07 && $dataFin >= $mes_atraz_1) ||( $hoje > $dia07 && $dataFin >= $mesAtual01))
                 {
                     return $acao.'Venda';
@@ -58,6 +59,11 @@
                         }else
                         if($dataFin >= $mes_atraz_12)
                             {
+                                 return $acao.'C'.$ct.'_12';
+                            }else
+                            if($dataFin >=  $atraz_Definido)
+                            {
+                                if($idUser == 24 || ($idUser == 29  || $idUser == 20 && ($ct == "01" || $ct == "02" || $ct == "09")))
                                  return $acao.'C'.$ct.'_12';
                             }else
                             {
@@ -706,12 +712,12 @@
                                         echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/imprimir/'.$r->id_fin.'" target="_blank" class="btn btn-inverse tip-top" title="Imprimir"><i class="icon-print"></i></a>'; 
                                     }
                                     if($this->permission->checkPermission($this->session->userdata('permissao'),'eVenda')){
-                                        if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'e'))){
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'e',$this->session->userdata('id')))){
                                         echo '<a style="margin-right: 1%" href="'.base_url().'index.php/vendas/editar/'.$r->id_fin.'" class="btn btn-info tip-top" title="Editar lançamento"><i class="icon-pencil icon-white"></i></a>'; }
                                     }
                                     if($this->permission->checkPermission($this->session->userdata('permissao'),'dVenda') )
                                     {
-                                        if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'd')))
+                                        if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'd',$this->session->userdata('id'))))
                                         {
                                             ?>
                                             <input type="hidden" id="ent_Sai" name="ent_Sai" value=" <?php echo $r->ent_Sai ?>" />
@@ -847,7 +853,7 @@
                         }
                         if($this->permission->checkPermission($this->session->userdata('permissao'),'dVenda') )
                         {
-                            if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'd')))
+                            if($this->permission->checkPermission($this->session->userdata('permissao'),verificaPermissoesData($r->dataFin, $r->conta, 'd',$this->session->userdata('id'))))
                             {
                                     ?>
                                     <input type="hidden" id="ent_Sai" name="ent_Sai" value=" <?php echo $r->ent_Sai ?>" />

@@ -16,10 +16,10 @@
 <script type="text/javascript"  src="<?php echo base_url();?>assets/js/jquery-1.10.2.min.js"></script>
 
 </head>
-<body class="cabecalho">
+<body>
 
 <!--Header-part-->
-<div id="header">
+<div id="header"  class="cabecalho">
   <h1><a href="">CISCOF</a></h1>
 </div>
 <!--close-Header-part--> 

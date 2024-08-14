@@ -14,9 +14,9 @@ $db['default'] = array(
 	'database' => 'u739483627_doar2',
     */
 	'hostname' => 'localhost',
-	'username' => 'u344891621_tito',
-	'password' => 'rebeca1980',
-	'database' => 'u344891621_doar',
+	'username' => 'u344891621_titobeca',
+	'password' => 'RebecA1980',
+	'database' => 'u344891621_doar_beta',
     
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

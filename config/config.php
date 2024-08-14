@@ -30,7 +30,7 @@ $config['app_version'] = '3.1.11';
 */
 //$config['base_url'] = 'http://127.0.0.1:80/SISCOF/SISCOF-2/';//localhost
 
-$config['base_url'] = 'http://ciscof-aenpazfin.net/';//localhost
+$config['base_url'] = 'http://beta.ciscof-aenpazfin.net/';//localhost
 
 /*
 |--------------------------------------------------------------------------
