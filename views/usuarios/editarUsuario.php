@@ -414,5 +414,3 @@ if(NULL == $arrpermissoes)
 
       });
 </script>
-
-

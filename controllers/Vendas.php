@@ -66,6 +66,8 @@ class Vendas extends CI_Controller
         } else
                         if ($dataFin >= $atraz_1ano) {
             if ($this->permission->checkPermission($this->session->userdata('permissao'), $acao . 'C' . $ct . '_12')) {
+                //     echo 'aLancamento_antigos_1ano'; return true;
+                // } else 
                 if ($this->session->userdata('id') == 24 || ($this->session->userdata('id') == 29 && ($ct == "01" || $ct == "02" || $ct == "09"))) {
                     echo 'aLancamento_antigos_1ano';
                     return true;
@@ -74,12 +76,15 @@ class Vendas extends CI_Controller
         } else
                             if ($dataFin >=  $atraz_Definido) {
             if ($this->permission->checkPermission($this->session->userdata('permissao'), $acao . 'C' . $ct . '_12')) {
+                //     echo 'aLancamento_antigos_1ano'; return true;
+                // } else 
                 if ($this->session->userdata('id') == 24 || ($this->session->userdata('id') == 29 && ($ct == "01" || $ct == "02" || $ct == "09"))) {
                     echo 'aLancamento_antigos_1ano';
                     return true;
                 }
             }
-        } else {
+        } {
+            // echo $acao.'Lancamento_antigos_1ano '.$dataFin.' '.$mes_atraz_1.' '.$mes_atraz_2.' '.$mes_atraz_3.' '.$mes_atraz_12; 
             return false;
         }
     }
@@ -187,6 +192,25 @@ class Vendas extends CI_Controller
         $this->data['result_caixas'] = $this->vendas_model->get2('caixas');
         $this->data['anexos'] = $this->vendas_model->get2('anexos');
         $this->data['presentesEsp'] = $this->vendas_model->get2('presentes_especiais');
+        // Alterar toda coluna de data de Emissão
+        /*
+        $reconc = $this->vendas_model->get2('reconc_bank');
+        
+        foreach ($reconc as $rc) 
+        {
+            if($rc->status == 0)
+            $dataEmiss = $rc->data_Pag; else  $dataEmiss = date('Y-m-d', strtotime($rc->data_Pag. ' -7 days')); 
+            $data = array(
+                'data_Emissao' => $dataEmiss
+            );
+        
+        
+        if ($this->vendas_model->edit('reconc_bank', $data, 'id_reconc', $rc->id_reconc ) == TRUE)
+        {
+            
+        }
+            }
+        */
 
 
         if (null !==  $this->input->post('idLanc')) {
@@ -220,6 +244,7 @@ class Vendas extends CI_Controller
             } else if ($this->input->post('ent_Sai') == 1)
                 $this->data['presentesE'] = $this->vendas_model->getPresente($this->input->post('idLanc'), $this->input->post('ent_Sai'));
 
+            //  $this->data['result_A'] = $this->vendas_model->getById($this->uri->segment(3));
         }
 
         $this->data['view'] = 'vendas/vendas';
@@ -271,6 +296,8 @@ class Vendas extends CI_Controller
                 } else if ($caixa == $r->conta) $oK = 1;
             } else if ($caixa == $r->conta) $oK = 1;
             if ($oK == 1) {
+                //if ($maisRecent['dataFin > $dataF) 
+                //{
                 $ent_Sai = $r->ent_Sai;
                 if ($ent_Sai == 0) {
                     $s_Atual = $s_anterior - $r->valorFin; //$valorFin;
@@ -281,6 +308,9 @@ class Vendas extends CI_Controller
                     'saldo' => $s_Atual
                 );
                 if ($this->vendas_model->edit('aenpfin', $dataS, 'id_fin', $r->id_fin) == TRUE)
+                //                            $upd = "UPDATE aenpfin SET saldo = ".$s_Atual." WHERE (id_fin =  ".$r->id_fin.")";
+                //                            $atualiz = mysqli_query($conex,$upd);
+                //                            if ($atualiz) 
                 {
                 } else {
                     die("<center>Desculpe, Erro na atualização.:  "
@@ -302,6 +332,10 @@ class Vendas extends CI_Controller
                         'saldo_Mes' => $saldo_mes
                     );
                     if ($this->vendas_model->edit('aenpfin', $dataS, 'id_fin', $id_anterior) == TRUE)
+
+                    //                                $upd = "UPDATE aenpfin SET saldo_Mes = '".$saldo_mes."' WHERE (id_fin = ".$id_anterior.")";
+                    //                                $atualiz = mysqli_query($conex, $upd);
+                    //                                if ($atualiz) 
                     {
                     } else {
                         die("<center>Desculpe, Erro na atualização.:  "
@@ -311,6 +345,10 @@ class Vendas extends CI_Controller
                 }
                 if ($saldo_mes == "S") $s_mes = "| Saldo do mês.";
                 else $s_mes = "";
+                //                    echo '<font color=red size="2"> Conta '.$r->conta;
+                //                    echo ' | Tipo '.$r->tipo_Conta. ' | Data </font> <font color=green>'.$d_anterior. ' </font> <font color=red>
+                //                    | Registro '.$id_anterior. ' | Saldo alterado para '.$s_Atual. '  
+                //                    '.$s_mes. ' <td></font><br />';
                 $id_anterior = $r->id_fin;
                 $fim_mes = $data_ultimo_dia;
             }
@@ -324,13 +362,17 @@ class Vendas extends CI_Controller
             $this->session->set_flashdata('error', 'Você não tem permissão para adicionar Vendas.');
             redirect(base_url());
         }
+        //        $_SESSION['textoSomatorio'] = '';
+        //        $_SESSION['textoSomatorioItens'] = '';
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
         $conta   = $this->input->post('conta');
         $t_conta = $this->input->post('tipCont');
         $this->data['usuario'] = $this->vendas_model->getByIdUser($this->session->userdata('id'));
         $datainicioLimite = $_SESSION['DATA_LIMITE_INICIO'];
+        // if ($this->form_validation->run('vendas') == false) {
         if ($this->input->post('razaoSoc') == null) {
+            //  $this->session->set_flashdata('error','Falha na verificação');
             $this->data['custom_error'] = (validation_errors() ? true : false);
 
             if ($this->input->post('conta') !== null) {
@@ -339,7 +381,10 @@ class Vendas extends CI_Controller
 
                     $presentess = $this->input->post('presentes');
 
+                    //  if($conta > 8)  $datainicioLimite = '2022-01-01';else   $datainicioLimite = '2022-01-01';
+
                     if (($contta < 4 || $contta > 8) &&  $presentess == "true") {
+                        //  $this->session->set_flashdata('error','Falha na verificação');
                         $this->session->set_flashdata('error', 'Para a conta selecionada não existe presente especial! Selecione novamente.');
                         redirect(base_url() . 'index.php/vendas');
                     }
@@ -366,6 +411,7 @@ class Vendas extends CI_Controller
             $con = new Conexao();
             $con->connect();
             $conex = $_SESSION['conex'];
+            // if(null !==  ( $this->input->post('id_caixa')))
             //****** VARIAVEIS RECEBIDAS******
             {
                 $caixa         = $this->input->post('conta');
@@ -583,12 +629,14 @@ class Vendas extends CI_Controller
                                         alert(\" A data não é uma data válida, tente novamente! Linha: " . __LINE__ . "\");
                                         </script>";
                     exit;
-                }   
+                }
+                //   echo "</b></br> Valor recebdo <strong><td> R$  ".$valorFin."</td></strong></br>";            
 
                 //*******Verifica se o valor foi digitado adequadamente.
                 {
                     if (formatoRealPntVrg($valorFin) == true) { //Verific se o numero digitado é com (.) milhar e (,) decimal
                         //serve pra validar  valores acima e abaixo de 1000
+                        //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
                         $valorFinExibe  =    $valorFin;
                         $valorFin  =    ((float)str_replace(",", ".", (str_replace(".", "", $valorFin))));
                     } else if (formatoRealInt($valorFin) == true) { //Verific se o numero digitado é inteiro sem ponto nem virgula
@@ -657,6 +705,10 @@ class Vendas extends CI_Controller
                             exit;
                         }
                         $negativ = 0;
+                        /*   if ( $valorPre < 0 ) {
+                                   $valorPre = abs($valorPre);
+                             $negativ = 1;
+                            }*/
                         $formatoValor = true;
                         //Verificação dos formatos dos valores
                         {
@@ -681,8 +733,20 @@ class Vendas extends CI_Controller
                             } else {
                                 $formatoValor = false;
                             }
+                            /*  
+                            if($valorPre <= 0 )
+                            {				echo "Verifique o valor do  ".$contar."º Prsente é inválido.
+                                                Volte a pagina anterior e preencha todos os campos! Linha " . __LINE__ ;
+                              echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
+                                                <script type=\"text/javascript\">
+                                                alert(\"Verifique o valor do  ".$contar."º Prsente é inválido. Volte a pagina anterior e preencha todos os campos!\");
+                                                </script>";						  
+                             exit; 
+                            }*/
                         }
 
+                        //  if($negativ == 1) { $valorPre = number_format($valorPre) * -1;}
+                        //   $valorPreExibe = number_format($valorPreExibe) * -1;
                         if ($formatoValor == false) {
                             $textoSomatorio .= "Um ou mais valores inseridos não esta nos parametros solicitados";
                             echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=" . $p_Origem . "'>
@@ -722,6 +786,7 @@ class Vendas extends CI_Controller
                     $valorTotExibe  =    number_format(str_replace(",", ".", $val_Total), 2, ',', '.');
                     //     echo  "<br><font color = #0cb20c size = 2> Verificar valor =  ".$v_Valores;// variavel pra não cadastrar e voltar
                     $textoSomatorio .= "<br><font color = red size = 2> Soma Total =  R$ <strong>" . $valorTotExibe . "</strong></font> <br><br>";
+                    //    echo gettype($valorFinTotal), "<br>";
                     $textoSomatorio .= "<font color = red size = 2>Valor lançado =  R$ <strong>" . $valorFinExibe . "</strong></font><br><br>";
                     // echo gettype($valorFin), "<br>";
                     $val_Total_float = floatval($val_Total);
@@ -871,7 +936,7 @@ class Vendas extends CI_Controller
                 }
 
                 echo "Conta lançaento - " . $caixa . " | Tipo - " . $tipoCont . " | Doc Banco - " . $num_Doc . " | Doc Fiscal " . $numDocFiscal . " | Histórico " . $razaoSoc . " | Data - " . $dataF . " | Valor - " . $valorFin . " | conta_Destino - " . $conta_Destino . " | ent_Sai - " . $ent_Sai;
-                // exit;	
+                //exit;	
             }
             //******Insere o lançamento na tabela aenpfin*********
             /*  {				
@@ -881,12 +946,9 @@ class Vendas extends CI_Controller
                                     </script>";						  
                  exit; 
                 }*/
-
             if (is_numeric($id = $this->vendas_model->add('aenpfin', $data, true)))
             //                if (1==1)
             {
-                var_dump($id);
-                exit;
                 $paginaDestino = "adicionar/";
                 //****** Resgata o ID do lançamento feito
                 $res_max = mysqli_query($conex, 'SELECT id_fin FROM aenpfin ORDER BY id_fin DESC LIMIT 1 ');
@@ -1026,7 +1088,7 @@ class Vendas extends CI_Controller
                 if ($this->ajusteSaldo($caixa, $t_conta, $dataF) == TRUE)
                     echo "<center> "
                         . '<br>Linha: ' . __LINE__ . "<br>													
-                                <a href='" . base_url() . "index.php/vendas/gerenciar'>Voltar a Lançamentos</a></center>";
+                        <a href='" . base_url() . "index.php/vendas/gerenciar'>Voltar a Lançamentos</a></center>";
                 switch ($caixa) {
                     case 1:
                         $contaNome = "IEADALPE - 1444-3";
@@ -2086,44 +2148,6 @@ class Vendas extends CI_Controller
 											</script>";
             exit;
         }
-        //   echo "</b></br> Valor recebdo <strong><td> R$  ".$valorFin."</td></strong></br>";            
-        /*  
-                    //Verifica se o valor foi digitado adequadamente.
-						 if(formatoRealPntVrg($valorFin) == true) 
-                   {//Verific se o numero digitado é com (.) milhar e (,) decimal
-                       //serve pra validar  valores acima e abaixo de 1000
-                        //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                        $valorFinExibe  =    $valorFin;   
-                       $valorFin  =    ((float)str_replace("," , "." , (str_replace("." , "" , $valorFin)) ));
-                   }else if(formatoRealInt($valorFin) == true)
-                   {//Verific se o numero digitado é inteiro sem ponto nem virgula
-                       //serve pra validar  valores acima e abaixo de 1000
-                       //       echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                        $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
-                       $valorFin  =    number_format(str_replace("." , "" ,$valorFin), 2, '.', '');
-                   }else if(formatoRealPnt($valorFin) == true)
-                   { 
-                       //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                       $valorFin  =    $valorFin;
-                        $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
-                   }else if(formatoRealVrg($valorFin) == true)
-                   { 
-                     //        echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
-                        $valorFinExibe  =    number_format(str_replace(",",".",$valorFin), 2, ',', '.');  
-                       $valorFin  =   ((float)str_replace("," , "." , (str_replace("." , "" , $valorFin)) ));
-                   }else
-                   {
-                       echo "O valor digitado não esta nos parametros solicitados";
-                              echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=".$p_Origem."'>
-											<script type=\"text/javascript\">
-											alert(\"O valor digitado não esta nos parametros solicitados. Tente novamente! Linha: ". __LINE__ . "\");
-											</script>";	
-						  exit;  
-                            
-						  
-                   }
-                    */
-
 
         if ($cod_compassion == ("R01 - 1030")) //Entrada com presentes especiais
         {
@@ -2151,8 +2175,6 @@ class Vendas extends CI_Controller
                     exit;
                 }
 
-
-
                 if ($valorPre = 0) {
                     echo "Atenção! O valor do  " . $contar . "º Presente é inválido.
 														Volte a pagina anterior e preencha todos os campos! Linha " . __LINE__;
@@ -2170,14 +2192,17 @@ class Vendas extends CI_Controller
             $val_Total = $valorFinTotal;
 
             $valorTotExibe  =    number_format(str_replace(",", ".", $val_Total), 2, ',', '.');
+            //     echo  "<br><font color = #0cb20c size = 2> Verificar valor =  ".$v_Valores;// variavel pra não cadastrar e voltar
             echo "<br><font color = red size = 2> Soma Total =  R$ <strong>" . $valorTotExibe . "</strong></font><br><br>";
+            //    echo gettype($valorFinTotal), "<br>";
             echo "<font color = red size = 2>Valor lançado =  R$ <strong>" . $valorFinExibe . "</strong></font><br><br>";
+            // echo gettype($valorFin), "<br>";
 
             if (($valorFin !==  $val_Total))
                 echo "<font color = red size = 2>Valor lançado é diferente do somatório</strong></font><br><br>";
 
 
-            if ($formatoValor == false) {
+            if (formatoValor == false) {
                 echo "Um ou mais valores inseridos não esta nos parametros solicitados";
                 echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=" . $p_Origem . "'>
 											<script type=\"text/javascript\">
