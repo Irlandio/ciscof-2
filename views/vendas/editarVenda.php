@@ -17,7 +17,7 @@
   }
 </style>
 <style type="text/css">
-  /* INPUT {text-transform: uppercase;}   
+  /* INPUT {text-transform: uppercase;} */  
 </style>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/js/jquery-ui/css/smoothness/jquery-ui-1.9.2.custom.css" />
 <script type="text/javascript" src="<?php echo base_url() ?>assets/js/jquery-ui/js/jquery-ui-1.9.2.custom.js"></script>
