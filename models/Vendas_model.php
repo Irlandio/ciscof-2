@@ -117,6 +117,12 @@ class Vendas_model extends CI_Model
         return $this->db->get($table)->result();
     }
 
+    function get4($table, $fields, $value)
+    {
+        $this->db->where($fields, $value);
+        return $this->db->get($table)->result();
+    }
+
     function get2($table)
     {
 
@@ -182,8 +188,6 @@ class Vendas_model extends CI_Model
         return $this->db->get()->result();
     }
 
-
-
     public function getIdultimo($conta, $t_conta)
     {
         $this->db->select('aenpfin.*');
@@ -195,7 +199,6 @@ class Vendas_model extends CI_Model
         $this->db->limit(1);
         return $this->db->get()->row();
     }
-
 
     function getById1($id)
     {
@@ -297,6 +300,26 @@ class Vendas_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function anexarTemp($id, $anexo, $url, $thumb, $path, $servico)
+    {
+        
+        $this->db->set('servico', $servico);
+        $this->db->set('id1', $id);
+        $this->db->set('nome1', $anexo);
+        $this->db->set('descricao1', $thumb);
+        $this->db->set('nome2', $url);
+        $this->db->set('descricao2', $path);
+
+        return $this->db->insert('auxiliarTab');
+    }
+    
+    public function excluirAnexosAntigos($limite_tempo)
+    {
+        $this->db->where('dataInsert <', $limite_tempo);
+        return $this->db->delete('auxiliarTab');
+    }
+    
+
     public function anexar($fin_id, $anexo, $url, $thumb, $path)
     {
 
@@ -311,7 +334,6 @@ class Vendas_model extends CI_Model
 
     public function getAnexos($idFin)
     {
-
         $this->db->where('fin_id', $idFin);
         return $this->db->get('anexos')->result();
     }

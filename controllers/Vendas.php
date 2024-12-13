@@ -1141,6 +1141,7 @@ class Vendas extends CI_Controller
         $this->data['result_codComp']   = $this->vendas_model->get3('cod_compassion', 'cod_Comp', 'ent_SaiComp');
         $this->data['result_codIead']   = $this->vendas_model->get3('cod_assoc', 'cod_Ass', 'ent_SaiAss');
         $this->data['pre']              = $this->vendas_model->getPresentes($conta);
+        $this->data['anexos'] = $this->vendas_model->getAnexos(0);
         $this->data['view']             = 'vendas/adicionarVenda';
         $this->load->view('tema/topo', $this->data);
     }
@@ -1491,23 +1492,107 @@ class Vendas extends CI_Controller
         $this->load->view('tema/topo', $this->data);
     }
 
-    public function anexar()
+    public function excluirAnexosAntigos()
     {
-        //   $this->session->set_flashdata('error','nome de arquivo. - ');   // Linha para testar variavel  
-        //  exit;
+        // Define o limite de tempo: registros com mais de 1 hora
+        $limite_tempo = date('Y-m-d H:i:s', strtotime('-1 hour'));
+
+        // Obtém os registros antigos
+        $registros_antigos = $this->Vendas_model->get4('auxiliarTab', 'dataInsert <', $limite_tempo);
+
+        if (!$registros_antigos) {
+            echo "Nenhum registro antigo encontrado.";
+            return;
+        }
+
+        // Remove os arquivos relacionados
+        $erros = [];
+        foreach ($registros_antigos as $anexo) {
+            $caminho_arquivo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $anexo->nome1;
+
+            // Tenta excluir o arquivo principal
+            if (file_exists($caminho_arquivo)) {
+                if (!unlink($caminho_arquivo)) {
+                    $erros[] = "Erro ao excluir o arquivo: " . $caminho_arquivo;
+                }
+            }
+
+            // Tenta excluir o thumbnail, se existir
+            if ($anexo->descricao1) {
+                $caminho_thumb = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $anexo->descricao1;
+                if (file_exists($caminho_thumb)) {
+                    if (!unlink($caminho_thumb)) {
+                        $erros[] = "Erro ao excluir o thumbnail: " . $caminho_thumb;
+                    }
+                }
+            }
+        }
+
+        // Exclui os registros antigos no banco
+        $excluido = $this->Vendas_model->excluirAnexosAntigos($limite_tempo);
+
+        // Exibe o resultado
+        if ($excluido && empty($erros)) {
+            echo "Registros antigos excluídos com sucesso.";
+        } elseif (!empty($erros)) {
+            echo "Erros encontrados ao excluir anexos:";
+            print_r($erros);
+        } else {
+            echo "Erro ao excluir registros antigos no banco.";
+        }
+    }
+
+
+    public function anexarDefinitivo($id_fin, $id_temp)
+    {
+        // Seleciona os registros da tabela auxiliarTab com base no id_temp
+        $this->db->where('id1', $id_temp);
+        $query = $this->db->get('auxiliarTab');
+        $anexos_temp = $query->result();
+    
+        if (!$anexos_temp) {
+            return false; // Nenhum registro encontrado para o id_temp
+        }
+    
+        // Prepara os dados para inserir na tabela anexos
+        foreach ($anexos_temp as $anexo) {
+            $data = array(
+                'fin_id'     => $id_fin,
+                'anexo'      => $anexo->nome1,
+                'url'        => $anexo->nome2,
+                'thumb'      => $anexo->descricao1,
+                'path'       => $anexo->descricao2,
+            );
+    
+            // Insere na tabela anexos
+            $this->db->insert('anexos', $data);
+        }
+    
+        // Após inserir, deleta os registros da tabela auxiliarTab
+        $this->db->where('id1', $id_temp);
+        $this->db->delete('auxiliarTab');
+    
+        return true;
+    }
+    
+   public function anexar()
+    {
         $this->load->library('upload');
         $this->load->library('image_lib');
+
         $upload_conf = array(
             'upload_path'   => realpath('./assets/anexos'),
-            'allowed_types' => 'jpg|png|gif|jpeg|JPG|PNG|GIF|JPEG|pdf|PDF|cdr|CDR|docx|DOCX|txt', // formatos permitidos para anexos de os
+            'allowed_types' => 'jpg|png|gif|jpeg|JPG|PNG|GIF|JPEG|pdf|PDF|cdr|CDR|docx|DOCX|txt',
             'max_size'      => 0,
         );
 
         $fin_id = $this->input->post('fin_id');
+        $servico = $this->input->post('servico');
+
+        // Inicializa o upload
         $this->upload->initialize($upload_conf);
 
-        //   $upload_data['file_name'] = $upload_data['file_name'].$id_OsItens."_".$id_OsItens;
-
+        // Reorganiza os arquivos no formato esperado pela biblioteca de upload
         foreach ($_FILES['userfile'] as $key => $val) {
             $i = 1;
             foreach ($val as $v) {
@@ -1517,53 +1602,88 @@ class Vendas extends CI_Controller
             }
         }
         unset($_FILES['userfile']);
+
         $error = array();
         $success = array();
-        foreach ($_FILES as $field_name => $file) {
-            if (! $this->upload->do_upload($field_name)) {
 
+        // Processa cada arquivo
+        foreach ($_FILES as $field_name => $file) {
+            if (!$this->upload->do_upload($field_name)) {
                 $error['upload'][] = $this->upload->display_errors();
             } else {
                 $upload_data = $this->upload->data();
+
                 if ($upload_data['is_image'] == 1) {
-                    // set the resize config
+                    // Configuração para criar o thumbnail
                     $resize_conf = array(
                         'source_image'  => $upload_data['full_path'],
                         'new_image'     => $upload_data['file_path'] . 'thumbs/thumb_' . $upload_data['file_name'],
                         'width'         => 200,
-                        'height'        => 125
+                        'height'        => 125,
                     );
                     $this->image_lib->initialize($resize_conf);
-                    if (! $this->image_lib->resize()) {
+
+                    if (!$this->image_lib->resize()) {
                         $error['resize'][] = $this->image_lib->display_errors();
                     } else {
                         $success[] = $upload_data;
-
-                        $this->load->model('Vendas_model');
-                        $this->Vendas_model->anexar($this->input->post('fin_id'), $upload_data['file_name'], base_url() . 'assets/anexos/', 'thumb_' . $upload_data['file_name'], realpath('./assets/anexos/'));
+                        if ($servico == "anexoTemp") {
+                            // Salva na tabela temporária
+                            $this->Vendas_model->anexarTemp(
+                                $fin_id,
+                                $upload_data['file_name'],
+                                base_url() . 'assets/anexos/',
+                                'thumb_' . $upload_data['file_name'],
+                                realpath('./assets/anexos/'),
+                                $servico
+                            );
+                        } else {
+                            // Salva na tabela definitiva
+                            $this->Vendas_model->anexar(
+                                $fin_id,
+                                $upload_data['file_name'],
+                                base_url() . 'assets/anexos/',
+                                'thumb_' . $upload_data['file_name'],
+                                realpath('./assets/anexos/')
+                            );
+                        }
                     }
                 } else {
-
                     $success[] = $upload_data;
-                    //  $arquivo_antigo =  base_url().'assets/anexos/'.$upload_data['file_name'];
-                    //    $arquivo_novo =  base_url().'assets/anexos/'.$id_OsItens."_".$id_OsItens."_".$upload_data['file_name'];
-                    //  rename($arquivo_antigo, $arquivo_novo);
-
-                    $this->load->model('Vendas_model');
-                    $this->Vendas_model->anexar($fin_id, $upload_data['file_name'], base_url() . 'assets/anexos/', '', realpath('./assets/anexos/'));
+                    if ($servico == "anexoTemp") {
+                        // Salva na tabela temporária
+                        $this->Vendas_model->anexarTemp(
+                            $fin_id,
+                            $upload_data['file_name'],
+                            base_url() . 'assets/anexos/',
+                            '',
+                            realpath('./assets/anexos/'),
+                            $servico
+                        );
+                    } else {
+                        // Salva na tabela definitiva
+                        $this->Vendas_model->anexar(
+                            $fin_id,
+                            $upload_data['file_name'],
+                            base_url() . 'assets/anexos/',
+                            '',
+                            realpath('./assets/anexos/')
+                        );
+                    }
                 }
             }
         }
+
+        // Retorna o resultado do upload
         if (count($error) > 0) {
             echo json_encode(array('result' => false, 'mensagem' => 'Nenhum arquivo foi anexado.'));
         } else {
-            //      $arquivo_antigo =  base_url().'assets/anexos/thumbs/'.$upload_data['file_name'];
-            //     $arquivo_novo =  base_url().'assets/anexos/thumbs/'.$id_OsItens."_".$id_OsItens."_".$upload_data['file_name'];
-            //     rename($arquivo_antigo, $arquivo_novo);
-
-            echo json_encode(array('result' => true, 'mensagem' => 'Arquivo(s) anexado(s) com sucesso .'));
+            echo json_encode(array('result' => true, 'fin_id' => $fin_id, 'mensagem' => 'Arquivo(s) anexado(s) com sucesso.'));
         }
     }
+
+    }
+    
 
     public function excluirAnexo($id = null)
     {

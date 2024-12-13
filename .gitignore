@@ -1,0 +1,4 @@
+# Ignorar a pasta config/
+config/
+# Ignorar a pasta config/
+.vscode/

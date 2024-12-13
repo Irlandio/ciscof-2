@@ -146,20 +146,7 @@ if ($tipoES == 0) $tipoEnt_Sai = "Despesa";
 else if ($tipoES == 1) $tipoEnt_Sai = "Receita";
 
 $contaNome = $conta != 0 ? $this->session->userdata('conta' . $conta . '_nome') : "Retorne a pagina anterior o selecione uma conta para lançamento";
-// switch ($conta)
-// {
-// 	case 0:	$contaNome = "Retorne a pagina anterior o selecione uma conta para lançamento";	break;    
-// 	case 1:	$contaNome = "IEADALPE - 1444-3";	break;    
-// 	case 2:	$contaNome = "22360-3";	break;  
-// 	case 3:	$contaNome = "ILPI";	break;  
-// 	case 4:	$contaNome = "BR0214";	break;  
-// 	case 5:	$contaNome = "BR0214 (Anexo)";	break;  
-// 	case 6:	$contaNome = "BR0542";	break;  
-// 	case 7:	$contaNome = "BR0549";	break;  
-// 	case 8:	$contaNome = "BR0579";	break;  
-// 	case 9:	$contaNome = "BB 28965-5";	break;  
-// 	case 10:$contaNome = "CEF 1948-4";	break; 				
-// } 
+
 
 $ano = date("Y");
 $mes = date("m");
@@ -376,7 +363,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                                 }
                                                             }
                                                         } else 
-                                          if ($tipoES == 1) {
+                                    if ($tipoES == 1) {
                                                             foreach ($result_codComp as $rcodComp) {
                                                                 if ($rcodComp->ent_SaiComp == 1 && $rcodComp->codigoNovo == 1) {
                                                                 ?>
@@ -415,13 +402,13 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                             }
                                                         }
                                                     } else 
-                                  if ($tipoES == 1) {
+                                                    if ($tipoES == 1) {
                                                         foreach ($result_codIead as $rcodIead) {
                                                             if ($rcodIead->ent_SaiAss == 1) {
                                                             ?>
                                                                 <option value="<?php echo $rcodIead->cod_Ass ?>">
                                                                     <?php echo '  ' . $rcodIead->cod_Ass . " |
-                                        " . $rcodIead->descricao_Ass ?></option>
+                                                                " . $rcodIead->descricao_Ass ?></option>
                                                     <?php } else {
                                                             }
                                                         }
@@ -713,7 +700,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                             <div class="span3"><?php echo $textoSomatorioItens; ?> </div>
                                             <div class="span7"><?php echo $textoSomatorio; ?></div>
 
-                                <?php
+                                    <?php
                                                     }
                                                 } else
                                                     //****** sAÍDA DE presentes especiais
@@ -844,13 +831,13 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                             if (isset($presente_pendente))
                                                 if ($presente_pendente == "true")
                                                     echo '* As linhas em amarelo são referentes a presentes com parte do valor ja lançado!';
-                                ?>
+                                    ?>
                                     </div>
                                     <?php
                                     //********* Insere "70_porcento" ou "30_porcento" para identificar de onde é o valor
                                     if ($conta == 3) {
                                         echo '<label><input  checked="checked"  name="numeroDoc" type="radio" value= "70_porcento" />
-                            Pertence aos 70% </label>';
+                                        Pertence aos 70% </label>';
                                         echo '<label><input name="numeroDoc" type="radio" value= "30_porcento" />Pertence aos 30%</label></br></br>';
                                     } ?>
 
@@ -884,27 +871,27 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                     <?php
                                                     for ($cont = 0; $cont <= $qtd_Mult; $cont++) { ?>
                                                         <tr>
-                                                            <td><select id="cod_Comp" name="cod_Comp">
+                                                            <td>
+                                                                <select id="cod_Comp" name="cod_Comp">
                                                                     <option value="">Opção financeira Compassion</option>
                                                                     <?php
                                                                     if ($tipoES == 0) {
                                                                         foreach ($result_codComp as $rcodComp) {
                                                                             if ($rcodComp->ent_SaiComp == 0 && $rcodComp->codigoNovo == 1) { ?>
                                                                                 <option value="<?php echo $rcodComp->cod_Comp ?>">
-                                                                                    <?php echo ' ' . $rcodComp->cod_Comp . " |
-                                                " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
+                                                                                    <?php echo ' ' . $rcodComp->cod_Comp . " | " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
                                                                             <?php } else {
                                                                             }
                                                                         }
                                                                     } else 
-                                          if ($tipoES == 1) {
+                                                                    if ($tipoES == 1) {
                                                                         foreach ($result_codComp as $rcodComp) {
                                                                             if ($rcodComp->ent_SaiComp == 1 && $rcodComp->codigoNovo == 1) {
                                                                             ?>
                                                                                 <option value="<?php echo $rcodComp->cod_Comp ?>">
-                                                                                    <?php echo ' ' . $rcodComp->cod_Comp . " |
-                                                    " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
-                                                                    <?php } else {
+                                                                                    <?php echo ' ' . $rcodComp->cod_Comp . " | " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
+                                                                                <?php 
+                                                                            } else {
                                                                             }
                                                                         }
                                                                     } ?>
@@ -922,13 +909,12 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                                             }
                                                                         }
                                                                     } else 
-                                  if ($tipoES == 1) {
+                                                                    if ($tipoES == 1) {
                                                                         foreach ($result_codIead as $rcodIead) {
                                                                             if ($rcodIead->ent_SaiAss == 1) {
                                                                             ?>
                                                                                 <option value="<?php echo $rcodIead->cod_Ass ?>">
-                                                                                    <?php echo '  ' . $rcodIead->cod_Ass . " |
-                                        " . $rcodIead->descricao_Ass ?></option>
+                                                                                    <?php echo '  ' . $rcodIead->cod_Ass . " | " . $rcodIead->descricao_Ass ?></option>
                                                                     <?php } else {
                                                                             }
                                                                         }
@@ -936,10 +922,12 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                                     ?>
                                                                 </select>
                                                             </td>
-                                                            <td><input id="numeroDoc" name="numeroDoc" placeholder="Nº Bancário" />
+                                                            <td>
+                                                                <input id="numeroDoc" name="numeroDoc" placeholder="Nº Bancário" />
                                                                 <input id="numDocFiscal" name="numDocFiscal" placeholder="(NF ou CF)- Nº Fiscal" />
                                                             </td>
-                                                            <td><input id="dataVenda" class="span12 datepicker" type="Text" name="dataVenda" value="<?php echo date('d/m/Y'); ?>" /><br />
+                                                            <td>
+                                                                <input id="dataVenda" class="span12 datepicker" type="Text" name="dataVenda" value="<?php echo date('d/m/Y'); ?>" /><br />
                                                                 <input text-align="right" name="valorFin" class="money">
                                                             </td>
                                                             <td><input name="razaoSoc" type="text" placeholder="Nome da Razão Social." maxlength=45 onChange="javascript:this.value=this.value.toUpperCase();">
@@ -965,7 +953,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <?php
                                             if ($presentes == "true") {
-                                                if ($tipoES == 0) {     ?>
+                                                if ($tipoES == 0) { ?>
                                                     <p class="cod_Comp" class="span12">
                                                         <label for="compassion">Código Compassion *</label>
                                                         <select id="cod_Comp" name="cod_Comp" class="span12">
@@ -982,7 +970,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                                 D06-010 | PRESENTES ESPECIAIS (Compassion)</option>
                                                         </select>
                                                     </p>
-                                                <?php
+                                                    <?php
                                                 } else if ($tipoES == 1) {  ?>
                                                     <p class="cod_Comp">
                                                         <label for="compassion">Código Compassion *</label>
@@ -1052,13 +1040,12 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                                 }
                                                             }
                                                         } else 
-                                  if ($tipoES == 1) {
+                                                        if ($tipoES == 1) {
                                                             foreach ($result_codIead as $rcodIead) {
                                                                 if ($rcodIead->ent_SaiAss == 1) {
                                                                 ?>
                                                                     <option value="<?php echo $rcodIead->cod_Ass ?>">
-                                                                        <?php echo '  ' . $rcodIead->cod_Ass . " |
-                                        " . $rcodIead->descricao_Ass ?></option>
+                                                                        <?php echo '  ' . $rcodIead->cod_Ass . " | " . $rcodIead->descricao_Ass ?></option>
                                                         <?php } else {
                                                                 }
                                                             }
@@ -1292,7 +1279,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 </td>
                                             </tr>
                                         </table>
-                                <?php
+                                    <?php
                                                 } else
                                                     //****** sAÍDA DE presentes especiais
                                                     if ($tipoES == (0)) {
@@ -1419,62 +1406,142 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                             if (isset($presente_pendente))
                                                 if ($presente_pendente == "true")
                                                     echo '* As linhas em amarelo são referentes a presentes com parte do valor ja lançado!';
-                                ?>
+                                    ?>
                                     </div>
                                     <?php
                                     if ($conta == 3) {
                                         echo '<label><input  checked="checked"  name="numeroDoc" type="radio" value= "70_porcento" />
-                            Pertence aos 70% </label>';
+                                    Pertence aos 70% </label>';
                                         echo '<label><input name="numeroDoc" type="radio" value= "30_porcento" />Pertence aos 30%</label></br></br>';
                                     } ?>
 
-
-
-
-                                <?php
+                                    <?php
                                 }
                                 ?>
-
 
                                 <div class="span12" style="padding: 1%; margin-left: 0">
                                     <div class="span6 offset3" style="text-align: center">
                                         <button class="btn btn-success" id="btnContinuar"><i class="icon-share-alt icon-white"></i> Continuar</button>
                                         <a href="<?php echo base_url() ?>index.php/vendas" class="btn"><i class="icon-arrow-left"></i> Voltar</a>
                                     </div>
+                                    <input name="habilitaEnvio" type="checkbox" value="0">
                                 </div>
                             </form>
                         </div>
                     </div>
-                </div>
 
-                <div class="span12">
-                    <div id="blRodape">
-                        <h5 text-align=center>Utilidade pública federal</h5>
+                    <!--Anexos-->
+                    <div class="tab-pane" id="tab2">
+                        <div class="span12" style="padding: 1%; margin-left: 0">
+                            <div class="span12 well" style="padding: 1%; margin-left: 0" id="form-anexos">
+                                <form id="formAnexos" enctype="multipart/form-data" action="javascript:;" accept-charset="utf-8" s method="post">
 
+                                    <div class="span10">
+
+                                        <input type="hidden" id="fin_id" name="fin_id" value="0" />
+                                        <label for="">Anexo</label>
+                                        <input type="file" class="span12" name="userfile[]" multiple="multiple" size="20" />
+                                    </div>
+                                    <div class="span2">
+                                        <label for="">.</label>
+
+                                        <button class="btn btn-success span12"><i class="icon-white icon-plus"></i> Anexar</button>
+
+
+                                    </div>
+
+
+                                </form>
+                            </div>
+
+                            <div class="span12" id="divAnexos" style="margin-left: 0">
+                                <?php
+                                $cont = 1;
+                                $flag = 5;
+                                foreach ($anexos as $a) {
+
+                                    if ($a->thumb == null) {
+                                        $thumb = base_url() . 'assets/img/icon-file.png';
+                                        $link = base_url() . 'assets/img/icon-file.png';
+                                    } else {
+                                        $thumb = base_url() . 'assets/anexos/thumbs/' . $a->thumb;
+                                        $link = $a->url . $a->anexo;
+                                    }
+
+                                    if ($cont == $flag) {
+                                        echo '<div style="margin-left: 0" class="span3"><a href="#modal-anexo" imagem="' . $a->idAnexos . '" link="' . $link . '" role="button" class="btn anexo" data-toggle="modal"><img src="' . $thumb . '" alt=""></a></div>';
+                                        $flag += 4;
+                                    } else {
+                                        echo '<div class="span3"><a href="#modal-anexo" imagem="' . $a->idAnexos . '" link="' . $link . '" role="button" class="btn anexo" data-toggle="modal"><img src="' . $thumb . '" alt=""></a></div>';
+                                    }
+                                    $cont++;
+                                } ?>
+                            </div>
+                        </div>
                     </div>
-                    <font color=red>( ** )</font>
-                    <font color=red>Obs: </font>
-                    <font color=#458B74 size=2>Padrão para preenchimento de valores
-                        99.999,99 ou 99999,99 ou 99999.99 ou 99999
-                    </font><br />
-                    <font color=red>( * )</font>
-                    <font color=red>Obs: </font>
-                    <font color=#458B74 size=2>- No campo <b>DOCUMENTO FISCAL </b> inserir NF ou CF antes do número e separando com traço. <br />- No campo <b>Historico </b>prencher <b>apenas</b> com o a razão social do estabelecimento. <br />- E no campo <b>DESCRIÇÃO</b> fica livre para descrever os detalhes que julgar nescessário.</font>
-
-
 
 
                 </div>
             </div>
         </div>
+
+        <div class="span12">
+            <div id="blRodape">
+                <h5 text-align=center>Utilidade pública federal</h5>
+
+            </div>
+            <font color=red>( ** )</font>
+            <font color=red>Obs: </font>
+            <font color=#458B74 size=2>Padrão para preenchimento de valores
+                99.999,99 ou 99999,99 ou 99999.99 ou 99999
+            </font><br />
+            <font color=red>( * )</font>
+            <font color=red>Obs: </font>
+            <font color=#458B74 size=2>- No campo <b>DOCUMENTO FISCAL </b> inserir NF ou CF antes do número e separando com traço. <br />- No campo <b>Historico </b>prencher <b>apenas</b> com o a razão social do estabelecimento. <br />- E no campo <b>DESCRIÇÃO</b> fica livre para descrever os detalhes que julgar nescessário.</font>
+
+
+
+
+        </div>
     </div>
+</div>
+</div>
 
 </div>
 
+<!-- Modal visualizar anexo -->
+<div id="modal-anexo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Visualizar Anexo</h3>
+    </div>
+    <div class="modal-body">
+        <div class="span12" id="div-visualizar-anexo" style="text-align: center">
+            <div class='progress progress-info progress-striped active'>
+                <div class='bar' style='width: 100%'>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Fechar</button>
+        <a href="" id-imagem="" class="btn btn-inverse" id="download">Download</a>
+        <?php if ($usuario->conta_Usuario == 99) { ?>
+            <a href="" link="" class="btn btn-danger" id="excluir-anexo">Excluir Anexo</a>
+        <?php } ?>
+    </div>
+</div>
 
+
+
+
+<script type="text/javascript" src="<?php echo base_url() ?>assets/js/jquery.validate.js"></script>
 <script src="<?php echo base_url(); ?>assets/js/maskmoney.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+        
+        $("#tab2").hide();
+
         $(".money").maskMoney();
         $("#cliente").autocomplete({
             source: "<?php echo base_url(); ?>index.php/vendas/autoCompleteCliente",
@@ -1517,6 +1584,118 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
         $(".datepicker").datepicker({
             dateFormat: 'dd/mm/yy'
         });
+
+        function verificarCampos() {
+            // Verifica se todos os campos estão preenchidos
+            let codComp = $("#cod_Comp").val();
+            let codAss = $("#cod_Ass").val();
+            let numeroDoc = $("#numeroDoc").val();
+            let dataVenda = $("#dataVenda").val();
+            let razaoSoc = $("input[name='razaoSoc']").val();
+            let descri = $("input[name='descri']").val();
+            let habilitaEnvio = $("input[name='habilitaEnvio']").is(":checked");
+
+            // Verifica se todos os campos têm valores e se o checkbox está marcado
+            let camposPreenchidos = codComp && codAss && numeroDoc && dataVenda && razaoSoc && descri;
+            
+            // Controla a visibilidade do form-anexos
+            if (camposPreenchidos) {
+                $("#form-anexos").show();
+            } else {
+                $("#form-anexos").hide();
+            }
+
+            // Controla o botão Continuar
+            if (habilitaEnvio) {
+                $("#btnContinuar").prop("disabled", false);
+            } else {
+                $("#btnContinuar").prop("disabled", true);
+            }
+        }
+
+        // Executa a verificação ao carregar a página
+        verificarCampos();
+
+        // Revalida ao alterar os campos
+        $("#cod_Comp, #cod_Ass, #numeroDoc, #dataVenda, input[name='razaoSoc'], input[name='descri']").on("input change", function () {
+            verificarCampos();
+        });
+
+        // Revalida ao marcar/desmarcar o checkbox
+        $("input[name='habilitaEnvio']").on("change", function () {
+            verificarCampos();
+        });
+    });
+
+
+    $("#formAnexos").validate({
+
+        submitHandler: function(form) {
+            //var dados = $( form ).serialize();
+            var dados = new FormData(form);
+            $("#form-anexos").hide('1000');
+            $("#divAnexos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
+            $.ajax({
+                type: "POST",
+                url: "<?php echo base_url(); ?>index.php/vendas/anexar",
+                data: dados,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.result == true) {
+                        $("#divAnexos").load("<?php echo current_url(); ?> #divAnexos");
+                        $("#userfile").val('');
+
+                    } else {
+                        $("#divAnexos").html('<div class="alert fade in"><button type="button" class="close" data-dismiss="alert">×</button><strong>Atenção!</strong> ' + data.mensagem + '</div>');
+                    }
+                },
+                error: function() {
+                    $("#divAnexos").html('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert">×</button><strong>Atenção!</strong> Ocorreu um erro. Verifique se você anexou o(s) arquivo(s).</div>');
+                }
+            });
+            $("#form-anexos").show('1000');
+            return false;
+        }
+    });
+
+    $(document).on('click', 'a', function(event) {
+        var idProduto = $(this).attr('idAcao');
+        var quantidade = $(this).attr('quantAcao');
+        var produto = $(this).attr('prodAcao');
+        if ((idProduto % 1) == 0) {
+            $("#divProdutos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
+            $.ajax({
+                type: "POST",
+                url: "<?php echo base_url(); ?>index.php/vendas/excluirProduto",
+                data: "idProduto=" + idProduto + "&quantidade=" + quantidade + "&produto=" + produto,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.result == true) {
+                        $("#divProdutos").load("<?php echo current_url(); ?> #divProdutos");
+
+                    } else {
+                        alert('Ocorreu um erro ao tentar excluir produto.');
+                    }
+                }
+            });
+            return false;
+        }
+
+    });
+
+    $(document).on('click', '.anexo', function(event) {
+        event.preventDefault();
+        var link = $(this).attr('link');
+        var id = $(this).attr('imagem');
+        var url = '<?php echo base_url(); ?>vendas/excluirAnexo/';
+        $("#div-visualizar-anexo").html('<img src="' + link + '" alt="">');
+        $("#excluir-anexo").attr('href', "<?php echo base_url(); ?>index.php/vendas/excluirAnexo/" + id);
+
+        $("#download").attr('href', "<?php echo base_url(); ?>index.php/vendas/downloadanexo/" + id);
 
     });
 </script>
