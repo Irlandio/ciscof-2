@@ -302,7 +302,7 @@ class Vendas_model extends CI_Model
 
     public function anexarTemp($id, $anexo, $url, $thumb, $path, $servico)
     {
-        
+        // ANEXA O ARQUIVO EM TABELA TEMPORARIA AGUARDANDO CONCLUIR CADASTRO
         $this->db->set('servico', $servico);
         $this->db->set('id1', $id);
         $this->db->set('nome1', $anexo);
@@ -313,9 +313,10 @@ class Vendas_model extends CI_Model
         return $this->db->insert('auxiliarTab');
     }
     
-    public function excluirAnexosAntigos($limite_tempo)
+    public function excluirAnexosTemporarios($id = null)
     {
-        $this->db->where('dataInsert <', $limite_tempo);
+        if($id != null) {
+        $this->db->where('id1', $id);}
         return $this->db->delete('auxiliarTab');
     }
     
@@ -332,10 +333,11 @@ class Vendas_model extends CI_Model
         return $this->db->insert('anexos');
     }
 
-    public function getAnexos($idFin)
+    public function getAnexos($tabela, $idFin)
     {
-        $this->db->where('fin_id', $idFin);
-        return $this->db->get('anexos')->result();
+        $field = $tabela == 'auxiliarTab' ? 'id1' : 'fin_id';
+        $this->db->where($field, $idFin);
+        return $this->db->get($tabela)->result();
     }
 
 
@@ -348,6 +350,25 @@ class Vendas_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function getUltimoId($tabela, $fieldID)
+    {
+        // Verifica se a tabela foi passada
+        if (empty($tabela)) {
+            return null;
+        }
+    
+        // Seleciona o maior ID da tabela
+        $this->db->select_max($fieldID);
+        $query = $this->db->get($tabela);
+    
+        // Verifica se há resultados e retorna o ID
+        if ($query->num_rows() > 0) {
+            return $query->row()->$fieldID;
+        }
+    
+        // Retorna null caso não haja registros
+        return null;
+    }
 
     function add($table, $data, $returnId = false)
     {

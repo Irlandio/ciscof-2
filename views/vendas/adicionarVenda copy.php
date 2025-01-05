@@ -25,7 +25,7 @@
     <div id="blCabeca" title="sitename">
         <?php
         //include("seguranca.php"); // Inclui o arquivo com o sistema de segurança
-        // protegePagina(); // Chama a função que protege a página
+        //protegePagina(); // Chama a função que protege a página
         //				var_dump($_POST);
 
         $conta = $usuario->conta_Usuario;
@@ -50,8 +50,6 @@
 
 <?php
 
-$aLancSemAnexo = $this->permission->checkPermission($this->session->userdata('permissao'), 'aLancSemAnexo') ? 1 : 0;
-
 if (isset($_SESSION['conta'])) {
 
     $conta = ($_SESSION['conta']);
@@ -75,6 +73,25 @@ if (isset($_SESSION['conta'])) {
     if (null !== ($_SESSION['dataVenda']))     $dataVenda    = $_SESSION['dataVenda'];
 
     if ($conta == 5 && $tipoES == 1) $conta = 4;
+    /*  
+                          if( ($qtd_presentes) > 0)
+                          {
+                            $contar = 1;
+                                    while (($contar <= $qtd_presentes) ) 
+                                        {
+                                            $nome = 'nome'.$contar;
+                                            $Codigo = 'Codigo'.$contar;
+                                            $Protocolo = 'Protocolo'.$contar;
+                                            $valorPre = 'valorPre'.$contar;
+                                                $_POST[$nome] = $_SESSION[$nome]
+                                                $_POST[$Codigo] =  $_SESSION[$Codigo];	
+                                                $_POST[$Protocolo] = $_SESSION[$Protocolo];
+                                                $_POST[$valorPre] = $_SESSION[$valorPre];	
+
+                                            $contar = $contar+1;							
+
+                                        }
+                          }*/
 } else { //Se a pagina foi chamada pela página cadatrarLançamento ou seja tentar denovo
 
     unset($_SESSION['conta']);
@@ -129,6 +146,7 @@ if ($tipoES == 0) $tipoEnt_Sai = "Despesa";
 else if ($tipoES == 1) $tipoEnt_Sai = "Receita";
 
 $contaNome = $conta != 0 ? $this->session->userdata('conta' . $conta . '_nome') : "Retorne a pagina anterior o selecione uma conta para lançamento";
+
 
 $ano = date("Y");
 $mes = date("m");
@@ -689,7 +707,13 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                     if ($tipoES == (0)) {
                                                         // if($nivel < 4)
                                                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto')) {
-
+                                                            // require_once 'conexao.class.php';		
+                                                            // $con = new Conexao();		 
+                                                            // $con->connect(); $conex = $_SESSION['conex']; 
+                                                            // //id_presente, id_entrada, id_saida, data_presente, n_beneficiario, nome_beneficiario, n_protocolo
+                                                            // $sql = 'SELECT * FROM presentes_especiais, aenpfin
+                                                            //                 WHERE id_fin = id_entrada and  id_saida like 0 and  conta like '.$conta.' ORDER BY dataFin';
+                                                            //     $presentes_abertos = mysqli_query($conex, $sql);
                                                             if (empty($pre)) {
                                                                 echo "<center><font color = red >Nao existem registros de presentes especiais!</font>";
                                                             }
@@ -715,12 +739,29 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                             $data_3Mes = date('Y-m-d', strtotime("-90 day", strtotime(date('Y-m-d'))));
                                                             $data_6Mes = date('Y-m-d', strtotime("-180 day", strtotime(date('Y-m-d'))));
                                                             $data_anoAtual = date('Y-m-d', strtotime(date('Y-01-01')));
-
+                                                            // foreach ($pre as $rpres)    
+                                                            // {
+                                                            //     echo '<br>';
+                                                            //     var_dump($rpres);
+                                                            // }
                                                             foreach ($pre as $rpres) {
                                                                 if ((($rpres->dataFin > $data_6Mes) || ($rpres->dataFin > $data_anoAtual)) && (($rpres->valor_pendente > 3 && $rpres->dataFin >= $data_3Mes)) && $rpres->projeto == $contaPres) {
 
                                                                     $contaN = $conta != 99 ? $this->session->userdata('conta' . $conta . '_nome') . ' XX' : "Todas contas";
-
+                                                                    // switch ($rpres->projeto) 
+                                                                    //     {
+                                                                    //         case 1:	$contaN = "IEADALPE - 1444-3"; break;    
+                                                                    //         case 2:	$contaN = "22360-3"; break;  
+                                                                    //         case 3:	$contaN = "ILPI"; break;  
+                                                                    //         case 4:	$contaN = "BR214"; break;  
+                                                                    //         case 5:	$contaN = "BR518"; break;  
+                                                                    //         case 6:	$contaN = "BR542"; break;  
+                                                                    //         case 7:	$contaN = "BR549"; break;  
+                                                                    //         case 8:	$contaN = "BR579"; break;  
+                                                                    //         case 9:	$contaN = "BB 28965-5"; break;  
+                                                                    //         case 10:$contaN = "CEF 1948-4"; break;
+                                                                    //         case 99:$contaN = "Todas contas"; break;  				
+                                                                    //     }
                                                                     $data_Ch = implode('/', array_reverse(explode('-', $rpres->dataFin)));
                                                                     $val_Ch = number_format($rpres->valor_entrada, 2, ',', '.');
                                                                     $valor_pendente = number_format($rpres->valor_pendente, 2, ',', '.');
@@ -792,12 +833,22 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                     echo '* As linhas em amarelo são referentes a presentes com parte do valor ja lançado!';
                                 ?>
                                     </div>
+                                    <?php
+                                    //********* Insere "70_porcento" ou "30_porcento" para identificar de onde é o valor
+                                    if ($conta == 3) {
+                                        echo '<label><input  checked="checked"  name="numeroDoc" type="radio" value= "70_porcento" />
+                                        Pertence aos 70% </label>';
+                                        echo '<label><input name="numeroDoc" type="radio" value= "30_porcento" />Pertence aos 30%</label></br></br>';
+                                    } ?>
+
+
+
 
                                     <?php
-                                } else {
+                                } else
 
-                                    //******* Se o lançamento esta iniciando                  
-
+                                //******* Se o lançamento esta iniciando                  
+                                {
                                     if ($multiLance == '1') {
 
                                         $qtd_Mult = $_POST['qtd_Multi'];
@@ -1105,7 +1156,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                             <div id="blAux6">
                                                 <p class="VALOR">
                                                     <label for="valor">Valor do lançamento</label>
-                                                    <span class="style1">* R$ </span><input text-align="right" id="valorFin" name="valorFin" class="money">
+                                                    <span class="style1">* R$ </span><input text-align="right" name="valorFin" class="money">
                                                     <font color=red> **</font>
                                                 </p>
                                                 <p class="Historico">
@@ -1132,7 +1183,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 <font color=red> *</font>
                                             </p>
                                         </div>
-                                        <input type="hidden" id="id_form" name="fin_id" value="" />
+                                        <input type="text" id="id_form" name="fin_id" value="" />
 
                                     <?php } ?>
 
@@ -1368,14 +1419,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                 <?php
                                 }
                                 ?>
-
+                                
                                 <div class="span12" style="padding: 1%; margin-left: 0">
                                     <div class="span6 offset3" style="text-align: center">
                                         <button class="btn btn-success" id="btnContinuar"><i class="icon-share-alt icon-white"></i> Continuar</button>
-
-                                        <!-- <button class="btn" id="btnContinuar" disabled>
-                                            <i class="icon-share-alt icon-white"></i> Continuar
-                                        </button> -->
                                         <a href="<?php echo base_url() ?>index.php/vendas" class="btn"><i class="icon-arrow-left"></i> Voltar</a>
                                     </div>
                                     <!-- <input name="habilitaEnvio" type="checkbox" value="0"> -->
@@ -1386,12 +1433,11 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                     <!--Anexos-->
                     <div class="tab-pane" id="tab2">
-                        <div class="span12 well" style="padding: 1%; margin-left: 0" id="form-anexos">
-                            <div class="span12" style="padding: 1%; margin-left: 0">
-
-                                <button id="btnBuscarAnexos" class="span12 btn btn-primary" style="align: center">
-                                    Atualizar Anexos
-                                </button>
+                            <div class="span12 well" style="padding: 1%; margin-left: 0" id="form-anexos">
+                        <div class="span12" style="padding: 1%; margin-left: 0">
+<button id="btnBuscarAnexos" class="span12 btn btn-primary" style="align: center">
+    Atualizar Anexos
+</button>
                                 <form id="formAnexos" enctype="multipart/form-data" action="javascript:;" accept-charset="utf-8" s method="post">
 
                                     <div class="span10">
@@ -1402,19 +1448,40 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                     <div class="span2">
                                         <label for="">.</label>
 
-                                        <button class="btn btn-success span12" id="anexar_arquivo"><i class="icon-white icon-plus"></i> Anexar</button>
+                                        <button class="btn btn-success span12"><i class="icon-white icon-plus"></i> Anexar</button>
 
 
                                     </div>
-                                    <input type="hidden" id="fin_id_form" name="fin_id" value="" />
-                                    <input type="hidden" id="servico" name="servico" value="anexoTemp" />
+                                        <input type="text" id="fin_id_form" name="fin_id" value="" />
+                                        <input type="text" id="servico" name="servico" value="anexoTemp" />
 
 
                                 </form>
                             </div>
 
                             <div class="span12" id="divAnexos" style="margin-left: 0">
+                                <?php
+                                // $cont = 1;
+                                // $flag = 5;
+                                // foreach ($anexos as $a) {
 
+                                //     if ($a->thumb == null) {
+                                //         $thumb = base_url() . 'assets/img/icon-file.png';
+                                //         $link = base_url() . 'assets/img/icon-file.png';
+                                //     } else {
+                                //         $thumb = base_url() . 'assets/anexos/thumbs/' . $a->thumb;
+                                //         $link = $a->url . $a->anexo;
+                                //     }
+
+                                //     if ($cont == $flag) {
+                                //         echo '<div style="margin-left: 0" class="span3"><a href="#modal-anexo" imagem="' . $a->idAnexos . '" link="' . $link . '" role="button" class="btn anexo" data-toggle="modal"><img src="' . $thumb . '" alt=""></a></div>';
+                                //         $flag += 4;
+                                //     } else {
+                                //         echo '<div class="span3"><a href="#modal-anexo" imagem="' . $a->idAnexos . '" link="' . $link . '" role="button" class="btn anexo" data-toggle="modal"><img src="' . $thumb . '" alt=""></a></div>';
+                                //     }
+                                //     $cont++;
+                                // } 
+                                ?>
                             </div>
                         </div>
                     </div>
@@ -1476,9 +1543,6 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 <script type="text/javascript">
     $(document).ready(function() {
 
-        let conta = <?= $conta ?>;
-        let tipoES = <?= $tipoES ?>;
-
         $(".money").maskMoney();
         $("#cliente").autocomplete({
             source: "<?php echo base_url(); ?>index.php/vendas/autoCompleteCliente",
@@ -1522,14 +1586,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             dateFormat: 'dd/mm/yy'
         });
 
-        // Obtém o valor do elemento com o ID `fin_id_form`
-        let fin_id_form = $("#fin_id_form");
-        let fin_id_form_v = $("#fin_id_form").val();
-
-        $("#btnBuscarAnexos").on("click", function() {
+        $("#btnBuscarAnexos").on("click", function () {
             // Obtém o valor do elemento com o ID `fin_id_form`
-            fin_id_form = $("#fin_id_form").val();
-
+            let fin_id_form = $("#fin_id_form").val();
+            
             // Verifica se o valor é válido antes de chamar a função
             if (fin_id_form) {
                 buscarAnexos(fin_id_form);
@@ -1537,13 +1597,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 alert("Por favor, preencha todos os campos e adicione anexos antes de buscar os anexos.");
             }
         });
-
-        // Variável de permissão, que pode ser controlada com base na lógica do seu sistema
-        // var permissaoAnexos = false;  // Inicialmente o botão começa como bloqueado
-
-        // Verifica o estado do botão logo ao carregar a página
-        // verificarPermissao();
-
+        
         function gerarIdForm() {
 
             // Obtém o ID do usuário do PHP
@@ -1551,24 +1605,19 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
             // Obtém a data e hora atuais
             let now = new Date();
-            let datatime =
-                now.getDate().toString().padStart(2, '0') +
-                now.getHours().toString().padStart(2, '0') +
-                now.getMinutes().toString().padStart(2, '0') +
-                now.getSeconds().toString().padStart(2, '0');
+            let datatime =  
+                        now.getDate().toString().padStart(2, '0') + 
+                        now.getHours().toString().padStart(2, '0') + 
+                        now.getMinutes().toString().padStart(2, '0') + 
+                        now.getSeconds().toString().padStart(2, '0');
 
             // Concatena o ID do usuário com a data e hora
             let id_form = idUsuario + datatime;
             return id_form;
         }
-        // Variável de controle de permissão
-        let permissaoAnexos = <?= $aLancSemAnexo ?>; // Define se é necessário verificar anexos
 
-        if (permissaoAnexos) {
-            desabilitarBotaoContinuarSemAnexo();
-        }
-        // Função principal para verificar o estado do botão "Continuar"
-        function verificarEstadoBotaoContinuar() {
+        function verificarCampos() {
+            // Verifica se todos os campos estão preenchidos
             let codComp = $("#cod_Comp").val();
             let codAss = $("#cod_Ass").val();
             let numeroDoc = $("#numeroDoc").val();
@@ -1576,177 +1625,95 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             let dataVenda = $("#dataVenda").val();
             let razaoSoc = $("input[name='razaoSoc']").val();
             let descri = $("textarea[name='descri']").val();
-
-            // Verifica se todos os campos têm mais de 3 caracteres e valorFin > 0
-            let camposPreenchidos = 
-                codComp && codComp.length > 3 &&
-                codAss && codAss.length > 3 &&
-                numeroDoc && numeroDoc.length > 3 &&
-                numDocFiscal && numDocFiscal.length > 3 &&
-                dataVenda && dataVenda.length > 3 &&
-                razaoSoc && razaoSoc.length > 3 &&
-                descri && descri.length > 3;
-            let condicaoContaES = conta > 3 && conta < 9 && tipoES == 0 ? 1 : 0;
-
-            // Verifica se o valor está vazio
-            if (!fin_id_form_v && camposPreenchidos) {
-                // Gera um novo ID e atribui ao campo
-                fin_id_form.val(gerarIdForm());
-                $("#id_form").val(fin_id_form.val());
-            }
             
-            if (permissaoAnexos) {
-                console.log('Tem permissaoAnexos');
-                desabilitarBotaoContinuarSemAnexo();
-                $("#form-anexos").hide();
-                // Apenas verifica os campos preenchidos
-                if (camposPreenchidos) {
-                    habilitarBotaoContinuar();
-                } else {
-                    desabilitarBotaoContinuarSemAnexo();
+            //Identificador do registro em preenchimento
+            let id_form = $("#id_form");
+            let fin_id_form = $("#fin_id_form");
+            
+            
+            let habilitaEnvio = 0;
+            // let habilitaEnvio = $("input[name='habilitaEnvio']").is(":checked");
+            // Verifica se todos os campos têm valores e se o checkbox está marcado
+            let camposPreenchidos = codComp && codAss && numeroDoc && numDocFiscal && dataVenda && razaoSoc && descri;
+            
+            // Verificar logs de debug
+            // console.log('codComp',codComp);
+            // console.log('codAss',codAss);
+            // console.log('numeroDoc',numeroDoc);
+            // console.log('dataVenda',dataVenda);
+            // console.log('razaoSoc',razaoSoc);
+            // console.log('descri',descri);
+            // console.log('camposPreenchidos',camposPreenchidos);
+            
+            // Controla a visibilidade do form-anexos
+            if (camposPreenchidos) {
+                $("#form-anexos").show();
+                // Verifica se o valor está vazio
+                if (!fin_id_form.val()) {
+                    // Gera um novo ID e atribui ao campo
+                    fin_id_form.val(gerarIdForm());
+                    id_form.val(fin_id_form.val());
                 }
+                habilitaEnvio = 1;
             } else {
-                console.log('Não tem permissaoAnexos');
-                // Verifica campos preenchidos e existência de anexos
-                if (camposPreenchidos) {
-                    // Verifica se é conta Compassion e saída
-                    if (condicaoContaES) {
-                        $("#form-anexos").show();
-                        verificarAnexos(); // Verifica anexos antes de habilitar
-                    } else {
-                        $("#form-anexos").hide();
-                        habilitarBotaoContinuar();
-                    }
-                } else {
-                    $("#form-anexos").hide();
-                    if (condicaoContaES) {
-                        desabilitarBotaoContinuar();
-                    } else {
-                        desabilitarBotaoContinuarSemAnexo();
-                    }
-                }
+                $("#form-anexos").hide();
+                console.log('oK');
+            }
+
+            // Controla o botão Continuar
+            if (habilitaEnvio) {
+                $("#btnContinuar").prop("disabled", false);
+            } else {
+                $("#btnContinuar").prop("disabled", true);
             }
         }
 
-        // Função para habilitar o botão "Continuar"
-        function habilitarBotaoContinuar() {
-            $("#btnContinuar").prop('disabled', false)
-                .removeClass('btn-warning')
-                .addClass('btn-success')
-                .html('<i class="icon-share-alt icon-white"></i> Continuar');
-        }
+        // Executa a verificação ao carregar a página
+        verificarCampos();
 
-        // Função para desabilitar o botão "Continuar"
-        function desabilitarBotaoContinuar() {
-            $("#btnContinuar").prop('disabled', true)
-                .removeClass('btn-success')
-                .addClass('btn-warning')
-                .html('<i class="icon-share-alt icon-white"></i> Preencha tudo e Anexar antes de continuar');
-        }
+        // Revalida ao alterar os campos
+        $("#cod_Comp, #cod_Ass, #numeroDoc, #numDocFiscal, #dataVenda, input[name='razaoSoc'], textarea[name='descri']").on("input change", function() {
+            verificarCampos();            
+        });
 
-        // Função para desabilitar o botão "Continuar"
-        function desabilitarBotaoContinuarSemAnexo() {
-            $("#btnContinuar").prop('disabled', true)
-                .removeClass('btn-success')
-                .addClass('btn-warning')
-                .html('<i class="icon-share-alt icon-white"></i> Preencher tudo antes de continuar');
-        }
+    });
 
+    $("#formAnexos").validate({
 
-        // Função para verificar anexos
-        function verificarAnexos() {
-            let fin_id_form = $("#fin_id_form").val();
+        submitHandler: function(form) {
+            //var dados = $( form ).serialize();
+            var dados = new FormData(form);
+            $("#form-anexos").hide('1000');
+            $("#divAnexos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
             $.ajax({
                 type: "POST",
-                url: "<?php echo base_url(); ?>index.php/vendas/buscarAnexos",
-                data: {
-                    fin_id: fin_id_form,
-                    tabela: 'auxiliarTab'
-                },
-                dataType: "json",
+                url: "<?php echo base_url(); ?>index.php/vendas/anexar",
+                data: dados,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                dataType: 'json',
                 success: function(data) {
-                    if (data.result && data.anexos.length > 0) {
-                        console.log('Tem Anexos');
-                        habilitarBotaoContinuar(); // Habilita o botão se há anexos
+                    if (data.result == true) {
+                        $("#divAnexos").load("<?php echo current_url(); ?> #divAnexos");
+                        $("#userfile").val('');
+
                     } else {
-                        console.log('Não tem Anexos');
-                        desabilitarBotaoContinuar(); // Bloqueia o botão se não há anexos
+                        $("#divAnexos").html('<div class="alert fade in"><button type="button" class="close" data-dismiss="alert">×</button><strong>Atenção!</strong> ' + data.mensagem + '</div>');
                     }
                 },
                 error: function() {
-                    console.log("Erro ao verificar anexos.");
-                    desabilitarBotaoContinuar();
+                    $("#divAnexos").html('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert">×</button><strong>Atenção!</strong> Ocorreu um erro. Verifique se você anexou o(s) arquivo(s).</div>');
                 }
             });
+            $("#form-anexos").show('1000');
+            // let fin_id_form = $("#fin_id_form");
+            console.log(fin_id_form);
+            buscarAnexos(fin_id_form);
+            return false;
         }
-
-        // Executa a verificação inicial ao carregar a página
-        verificarEstadoBotaoContinuar();
-
-        // Reexecuta a verificação ao alterar campos
-        $("#cod_Comp, #cod_Ass, #numeroDoc, #numDocFiscal, #dataVenda, input[name='razaoSoc'], textarea[name='descri']").on("input change", function() {
-            verificarEstadoBotaoContinuar();
-        });
-
-        // Chama a verificação ao adicionar ou remover anexos
-        $(document).on("click", ".excluir-anexo, #adicionar-anexo", function() {
-            verificarEstadoBotaoContinuar();
-        });
-
-        $("#formAnexos").validate({
-            submitHandler: function(form) {
-                // Desabilita os botões "Anexar", "Continuar" e "Atualizar Anexos"
-                $("#anexar_arquivo").prop('disabled', true);
-                $("#btnContinuar").prop('disabled', true);
-                $("#btnBuscarAnexos").prop('disabled', true)
-                    .removeClass('btn-primary')
-                    .addClass('btn-warning') // Adiciona cor laranja
-                    .text('ATENÇÃO! AGUARDE O ARQUIVO CARREGAR.');
-
-                var dados = new FormData(form);
-                $("#form-anexos").hide('1000');
-                $("#divAnexos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
-
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo base_url(); ?>index.php/vendas/anexar",
-                    data: dados,
-                    mimeType: "multipart/form-data",
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    dataType: 'json',
-                    success: function(data) {
-                        if (data.result == true) {
-                            $("#divAnexos").load("<?php echo current_url(); ?> #divAnexos");
-                            $("#userfile").val('');
-                            // Verifica se o botão "Continuar" pode ser ativado
-                            verificarAnexos();
-                        } else {
-                            $("#divAnexos").html('<div class="alert fade in"><button type="button" class="close" data-dismiss="alert">×</button><strong>Atenção!</strong> ' + data.mensagem + '</div>');
-                        }
-                    },
-                    error: function() {
-                        $("#divAnexos").html('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert">×</button><strong>Atenção!</strong> Ocorreu um erro. Verifique se você anexou o(s) arquivo(s).</div>');
-                    },
-                    complete: function() {
-                        // Reabilita os botões após a conclusão do processo
-                        $("#anexar_arquivo").prop('disabled', false);
-                        $("#btnContinuar").prop('disabled', false);
-                        $("#btnBuscarAnexos").prop('disabled', false)
-                            .removeClass('btn-warning') // Remove a cor laranja
-                            .addClass('btn-primary') // Restaura a cor padrão
-                            .text('Clique aqui para Atualizar os arquivos carregados.');
-                    }
-                });
-
-                $("#form-anexos").show('1000');
-
-                return false;
-            }
-        });
     });
-
 
     $(document).on('click', 'a', function(event) {
         var idProduto = $(this).attr('idAcao');
@@ -1773,58 +1740,69 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
     });
 
-    $(document).on('click', '.anexo', function(event) {
-        event.preventDefault();
+    // $(document).on('click', '.anexo', function(event) {
+    //     event.preventDefault();
+    //         let fin_id_form_V = $("#fin_id_form").val();
+    //     console.log(fin_id_form_V);
+        
+    //     var link = $(this).attr('link');
+    //     var id = $(this).attr('imagem');
+    //     var url = '<?php echo base_url(); ?>vendas/excluirAnexosTemporarios/'+fin_id_form;
+    //     $("#div-visualizar-anexo").html('<img src="' + link + '" alt="">');
+    //     $("#excluir-anexo").attr('href', "<?php echo base_url(); ?>index.php/vendas/excluirAnexosTemporarios/" + fin_id_form_V);
 
-        var link = $(this).attr('link'); // URL do anexo
-        var id = $(this).attr('imagem'); // ID do anexo
-        var fin_id_form = $("#fin_id_form").val(); // ID do formulário financeiro
+    //     $("#download").attr('href', "<?php echo base_url(); ?>index.php/vendas/downloadanexo/" + fin_id_form_V);
 
-        // Atualiza a visualização do anexo
-        $("#div-visualizar-anexo").html('<img src="' + link + '" alt="Visualizando Anexo">');
-        $("#excluir-anexo").data('id', id); // Define o ID do anexo como atributo de dados
-        $("#download").attr('href', "<?php echo base_url(); ?>index.php/vendas/downloadanexo/" + fin_id_form);
-    });
+    // });
+    
+$(document).on('click', '.anexo', function(event) {
+    event.preventDefault();
 
-    // Requisição AJAX ao clicar em #excluir-anexo
-    $(document).on('click', '#excluir-anexo', function(event) {
-        event.preventDefault();
+    var link = $(this).attr('link'); // URL do anexo
+    var id = $(this).attr('imagem'); // ID do anexo
+    var fin_id_form = $("#fin_id_form").val(); // ID do formulário financeiro
 
-        var id = $(this).data('id'); // ID do anexo a ser excluído
-        var url = '<?php echo base_url(); ?>index.php/vendas/excluirAnexosTemporarios/' + id;
+    // Atualiza a visualização do anexo
+    $("#div-visualizar-anexo").html('<img src="' + link + '" alt="Visualizando Anexo">');
+    $("#excluir-anexo").data('id', id); // Define o ID do anexo como atributo de dados
+    $("#download").attr('href', "<?php echo base_url(); ?>index.php/vendas/downloadanexo/" + fin_id_form);
+});
 
-        if (!id) {
-            alert("Erro: ID do anexo não encontrado.");
-            return;
-        }
+// Requisição AJAX ao clicar em #excluir-anexo
+$(document).on('click', '#excluir-anexo', function(event) {
+    event.preventDefault();
 
-        if (!confirm("Tem certeza que deseja excluir este anexo?")) {
-            return;
-        }
+    var id = $(this).data('id'); // ID do anexo a ser excluído
+    var url = '<?php echo base_url(); ?>index.php/vendas/excluirAnexosTemporarios/' + id;
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            dataType: "json",
-            success: function(response) {
+    if (!id) {
+        alert("Erro: ID do anexo não encontrado.");
+        return;
+    }
 
-                // Após excluir, verifica novamente os anexos
-                verificarAnexos();
+    if (!confirm("Tem certeza que deseja excluir este anexo?")) {
+        return;
+    }
 
-                if (response.success) {
-                    alert(response.message);
+    $.ajax({
+        url: url,
+        type: "POST",
+        dataType: "json",
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
 
-                    // Atualize a interface, remova o anexo visualizado, etc.
-                    $("#div-visualizar-anexo").html('<p>Anexo excluído com sucesso.</p>');
-                } else {
-                    alert("Erro ao excluir anexo: " + response.message);
-                }
-            },
-            error: function() {
-                alert("Erro na comunicação com o servidor. Tente novamente.");
+                // Atualize a interface, remova o anexo visualizado, etc.
+                $("#div-visualizar-anexo").html('<p>Anexo excluído com sucesso.</p>');
+            } else {
+                alert("Erro ao excluir anexo: " + response.message);
             }
-        });
+        },
+        error: function() {
+            alert("Erro na comunicação com o servidor. Tente novamente.");
+        }
     });
+});
 
 
 
@@ -1836,23 +1814,20 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
         $.ajax({
             type: "POST",
             url: "<?php echo base_url(); ?>index.php/vendas/buscarAnexos",
-            data: {
-                fin_id: fin_id,
-                tabela: 'auxiliarTab'
-            },
+            data: { fin_id: fin_id, tabela: 'auxiliarTab'},
             dataType: "json",
             success: function(data) {
                 if (data.result) {
                     let anexosHtml = "";
 
                     data.anexos.forEach(function(anexo, index) {
-                        let thumb = anexo.thumb ?
-                            "<?php echo base_url(); ?>assets/anexos/thumbs/" + anexo.thumb :
-                            "<?php echo base_url(); ?>assets/img/icon-file.png";
-
-                        let link = anexo.thumb ?
-                            anexo.url + anexo.anexo :
-                            "<?php echo base_url(); ?>assets/img/icon-file.png";
+                        let thumb = anexo.thumb 
+                            ? "<?php echo base_url(); ?>assets/anexos/thumbs/" + anexo.thumb 
+                            : "<?php echo base_url(); ?>assets/img/icon-file.png";
+                        
+                        let link = anexo.thumb 
+                            ? anexo.url + anexo.anexo 
+                            : "<?php echo base_url(); ?>assets/img/icon-file.png";
 
                         anexosHtml += `
                             <div class="span3">
@@ -1873,4 +1848,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             }
         });
     }
+
+    // Exemplo de chamada da função (substitua "0" pelo ID correto ou variável que contenha o ID)
+    // $(document).ready(function() {
+    //     let fin_id = $("#fin_id").val() || 0; // Pega o ID atual ou usa 0 como padrão
+    //     buscarAnexos(fin_id); // Busca os anexos assim que a página carregar
+    // });
 </script>

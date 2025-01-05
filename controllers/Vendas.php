@@ -23,6 +23,7 @@ class Vendas extends CI_Controller
         $this->data['menuVendas'] = 'Vendas';
         $_SESSION['DATA_FIM_BR518'] = '2022-11-30';
         $_SESSION['DATA_LIMITE_INICIO'] = '2023-01-01';
+        $this->load->library('user_agent');
     }
 
     function verificaPermissoesData($dataFin, $ct, $acao = 'e')
@@ -449,6 +450,8 @@ class Vendas extends CI_Controller
                 if (null !== ($this->input->post('senhaAdm'))) {
                     $senhaAdm  = $this->input->post('senhaAdm');
                 }
+                $fin_id_form = $this->input->post('fin_id');
+                
                 $p_Origem = base_url() . 'index.php/vendas/adicionar';
                 //*******Verifica se o valor foi digitado adequadamente.
                 {
@@ -479,7 +482,6 @@ class Vendas extends CI_Controller
                         exit;
                     }
                 }
-
 
                 $_SESSION['conta']          = $this->input->post('conta');
                 $_SESSION['tipoCont']       = $this->input->post('tipoCont');
@@ -951,19 +953,9 @@ class Vendas extends CI_Controller
             {
                 $paginaDestino = "adicionar/";
                 //****** Resgata o ID do lançamento feito
-                $res_max = mysqli_query($conex, 'SELECT id_fin FROM aenpfin ORDER BY id_fin DESC LIMIT 1 ');
-                if (!$res_max) {
-                    die("<center>Desculpe, Nao foi encontrado nenhum item com esse criterio. Tente novamente:  "
-                        . '<br>Linha: ' . __LINE__ . "<br>" . mysqli_error() . "<br>
-                                    <a href='menu1.php'>Voltar ao Menu</a></center>");
-                    //exit;
-                }
-                if (mysqli_num_rows($res_max) == 0) {
-                    echo "Nao foi encontrado nenhum id_aenpfin. Tente novamente!"; //exit;
-                }
-                while ($id_ultimo = mysqli_fetch_assoc($res_max)) {
-                    $id_Maxaenp = $id_ultimo['id_fin'];
-                }
+                
+                $id_Maxaenp = $this->vendas_model->getUltimoId('aenpfin', 'id_fin');
+                
                 //******busca do ultimo registro com o saldo do mês marcado *********
                 //                    echo '<br> Caixa '.(int)$caixa.'<br>';
                 if (($caixa == 4 || $caixa == 5) && $dataF > $_SESSION['DATA_FIM_BR518']) {
@@ -1121,6 +1113,11 @@ class Vendas extends CI_Controller
                         $contaNome = "CEF 1948-4";
                         break;
                 }
+                
+
+                $this->anexarDefinitivo($id_Maxaenp, $fin_id_form);
+                $this->excluirAnexosTemporarios($fin_id_form);
+                
                 $this->session->set_flashdata('success', 'Lançamento efetuado com sucesso! Conta ' . $contaNome . ' - ' . $tipoCont . ' doc ' . $num_Doc . ' doc Fiscal ' . $numDocFiscal . 'Razão social ' . $razaoSoc . ' ' . $descri . ' - tipo pag ' . $tipo_Pag . '. | <strong>Adicione o ANEXO do documento fiscal.</strong>');
                 redirect(base_url() . 'index.php/vendas/' . $paginaDestino);
                 echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=" . base_url() . "index.php/vendas/'.$paginaDestino>
@@ -1141,7 +1138,7 @@ class Vendas extends CI_Controller
         $this->data['result_codComp']   = $this->vendas_model->get3('cod_compassion', 'cod_Comp', 'ent_SaiComp');
         $this->data['result_codIead']   = $this->vendas_model->get3('cod_assoc', 'cod_Ass', 'ent_SaiAss');
         $this->data['pre']              = $this->vendas_model->getPresentes($conta);
-        $this->data['anexos'] = $this->vendas_model->getAnexos(0);
+        $this->data['anexos'] = $this->vendas_model->getAnexos('anexos', 0);
         $this->data['view']             = 'vendas/adicionarVenda';
         $this->load->view('tema/topo', $this->data);
     }
@@ -1487,36 +1484,79 @@ class Vendas extends CI_Controller
         $this->data['produtos'] = $this->vendas_model->getProdutos($this->uri->segment(3));
         $this->data['result_codComp'] = $this->vendas_model->get2('cod_compassion');
         $this->data['result_codIead'] = $this->vendas_model->get2('cod_assoc');
-        $this->data['anexos'] = $this->vendas_model->getAnexos($this->uri->segment(3));
+        $this->data['anexos'] = $this->vendas_model->getAnexos('anexos', $this->uri->segment(3));
         $this->data['view'] = 'vendas/editarVenda';
         $this->load->view('tema/topo', $this->data);
     }
+    public function buscarAnexos()
+    {    
+        $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui
+        // Obtém o ID do formulário (fin_id) enviado pela requisição AJAX
+        $fin_id = $this->input->post('fin_id');
+        $tabela = $this->input->post('tabela');
+    
+        // Busca os anexos no banco de dados
+        $anexos = $this->Vendas_model->getAnexos($tabela, $fin_id);
+        
+            
+        // $campos = [
+        //     'idAnexos' => $field = $tabela == 'auxiliarTab' ? $anexo['id1'] : $anexo['idAnexos'],
+        //     'thumb' =>  $field = $tabela == 'auxiliarTab' ? $anexo['descricao1'] : $anexo['thumb'],
+        //     'anexo' => $field = $tabela == 'auxiliarTab' ? $anexo['nome1'] : $anexo['anexo'],
+        //     'url' => base_url() . 'assets/anexos/' // Ajuste o caminho conforme necessário
+        // ];
+        
+        // Monta a resposta JSON
+        if (!empty($anexos)) {
+            $data = [];
+            foreach ($anexos as $anexo) {
+                $data[] = [
+                    'idAnexos'  => $field = $tabela == 'auxiliarTab' ? $anexo->id1          : $anexo->idAnexos,
+                    'thumb'     => $field = $tabela == 'auxiliarTab' ? $anexo->descricao1   : $anexo->thumb,
+                    'anexo'     => $field = $tabela == 'auxiliarTab' ? $anexo->nome1        : $anexo->anexo,
+                    'url'       => base_url() . 'assets/anexos/' // Ajuste o caminho conforme necessário
+                ];
+            }
+    
+            echo json_encode(['result' => true, 'anexos' => $data]);
+        } else {
+            echo json_encode(['result' => false, 'message' => 'Nenhum anexo encontrado.']);
+        }
+    }
 
-    public function excluirAnexosAntigos()
+    public function excluirAnexosTemporarios($id = null)
     {
-        // Define o limite de tempo: registros com mais de 1 hora
-        $limite_tempo = date('Y-m-d H:i:s', strtotime('-1 hour'));
-
-        // Obtém os registros antigos
-        $registros_antigos = $this->Vendas_model->get4('auxiliarTab', 'dataInsert <', $limite_tempo);
-
-        if (!$registros_antigos) {
-            echo "Nenhum registro antigo encontrado.";
+        $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui    
+        
+        // Obtém os registros temporarios ou específicos ao ID
+        $condicao_tempo = $id === null ? 'dataInsert <' : 'id1';
+        $valor_condicao = $id === null ? $limite_tempo : $id;
+        $registros = $this->Vendas_model->get4('auxiliarTab', $condicao_tempo, $valor_condicao);
+        
+        if (!$registros) {
+            $response = [
+                'success' => false,
+                'message' => 'Nenhum registro encontrado para exclusão.'
+            ];
+            echo json_encode($response);
             return;
         }
-
+    
+        // Exclui os registros no banco de dados
+        $excluido = $this->Vendas_model->excluirAnexosTemporarios($id);
+        
         // Remove os arquivos relacionados
         $erros = [];
-        foreach ($registros_antigos as $anexo) {
+        foreach ($registros as $anexo) {
             $caminho_arquivo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $anexo->nome1;
-
+    
             // Tenta excluir o arquivo principal
             if (file_exists($caminho_arquivo)) {
                 if (!unlink($caminho_arquivo)) {
                     $erros[] = "Erro ao excluir o arquivo: " . $caminho_arquivo;
                 }
             }
-
+    
             // Tenta excluir o thumbnail, se existir
             if ($anexo->descricao1) {
                 $caminho_thumb = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $anexo->descricao1;
@@ -1527,56 +1567,100 @@ class Vendas extends CI_Controller
                 }
             }
         }
-
-        // Exclui os registros antigos no banco
-        $excluido = $this->Vendas_model->excluirAnexosAntigos($limite_tempo);
-
-        // Exibe o resultado
+    
         if ($excluido && empty($erros)) {
-            echo "Registros antigos excluídos com sucesso.";
+            $response = [
+                'success' => true,
+                'message' => $id === null
+                    ? "Registros temporarios excluídos com sucesso."
+                    : "Anexos do ID $id excluídos com sucesso."
+            ];
         } elseif (!empty($erros)) {
-            echo "Erros encontrados ao excluir anexos:";
-            print_r($erros);
+            $response = [
+                'success' => false,
+                'message' => 'Erros encontrados ao excluir anexos: ' . implode(', ', $erros)
+            ];
         } else {
-            echo "Erro ao excluir registros antigos no banco.";
+            $response = [
+                'success' => false,
+                'message' => 'Erro ao excluir registros no banco.'
+            ];
         }
+
+        // Retorna a resposta em formato JSON
+        echo json_encode($response);
+        return;
     }
 
 
-    public function anexarDefinitivo($id_fin, $id_temp)
-    {
-        // Seleciona os registros da tabela auxiliarTab com base no id_temp
-        $this->db->where('id1', $id_temp);
-        $query = $this->db->get('auxiliarTab');
-        $anexos_temp = $query->result();
-    
-        if (!$anexos_temp) {
-            return false; // Nenhum registro encontrado para o id_temp
+public function anexarDefinitivo($id_fin, $id_temp)
+{
+    // Seleciona os registros da tabela auxiliarTab com base no id_temp
+    $this->db->where('id1', $id_temp);
+    $query = $this->db->get('auxiliarTab');
+    $anexos_temp = $query->result();
+
+    if (!$anexos_temp) {
+        return false; // Nenhum registro encontrado para o id_temp
+    }
+
+    // Obtém o número atual de anexos associados a este $id_fin
+    $this->db->where('fin_id', $id_fin);
+    $qtd_anexos = $this->db->count_all_results('anexos');
+    $sequencia = $qtd_anexos + 1;
+
+    foreach ($anexos_temp as $anexo) {
+        // Define o novo nome do arquivo
+        $extensao = pathinfo($anexo->nome1, PATHINFO_EXTENSION);
+        $novo_nome = $id_fin . 'Anexo_' . $sequencia . '.' . $extensao;
+
+        // Renomeia o arquivo físico no diretório
+        $caminho_antigo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $anexo->nome1;
+        $caminho_novo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $novo_nome;
+
+        if (file_exists($caminho_antigo)) {
+            rename($caminho_antigo, $caminho_novo);
         }
-    
+
+        // Renomeia o thumbnail, se existir
+        if (!empty($anexo->descricao1)) {
+            $thumb_antigo = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $anexo->descricao1;
+            $thumb_novo = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . 'thumb_' . $novo_nome;
+
+            if (file_exists($thumb_antigo)) {
+                rename($thumb_antigo, $thumb_novo);
+            }
+        } else {
+            $thumb_novo = null;
+        }
+
         // Prepara os dados para inserir na tabela anexos
-        foreach ($anexos_temp as $anexo) {
-            $data = array(
-                'fin_id'     => $id_fin,
-                'anexo'      => $anexo->nome1,
-                'url'        => $anexo->nome2,
-                'thumb'      => $anexo->descricao1,
-                'path'       => $anexo->descricao2,
-            );
-    
-            // Insere na tabela anexos
-            $this->db->insert('anexos', $data);
-        }
-    
-        // Após inserir, deleta os registros da tabela auxiliarTab
-        $this->db->where('id1', $id_temp);
-        $this->db->delete('auxiliarTab');
-    
-        return true;
+        $data = array(
+            'fin_id' => $id_fin,
+            'anexo'  => $novo_nome,
+            'url'    => $anexo->nome2,
+            'thumb'  => $thumb_novo ? 'thumb_' . $novo_nome : null,
+            'path'   => $anexo->descricao2,
+        );
+
+        // Insere na tabela anexos
+        $this->db->insert('anexos', $data);
+
+        // Incrementa a sequência para o próximo arquivo
+        $sequencia++;
     }
+
+    // Após inserir, deleta os registros da tabela auxiliarTab
+    $this->db->where('id1', $id_temp);
+    $this->db->delete('auxiliarTab');
+
+    return true;
+}
+
     
    public function anexar()
-    {
+    { 
+        $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui
         $this->load->library('upload');
         $this->load->library('image_lib');
 
@@ -1609,7 +1693,10 @@ class Vendas extends CI_Controller
         // Processa cada arquivo
         foreach ($_FILES as $field_name => $file) {
             if (!$this->upload->do_upload($field_name)) {
-                $error['upload'][] = $this->upload->display_errors();
+                $error = $this->upload->display_errors();
+                log_message('error', 'Upload Error: ' . $error);
+                echo json_encode(['result' => false, 'mensagem' => $error]);
+                return;
             } else {
                 $upload_data = $this->upload->data();
 
@@ -1681,8 +1768,6 @@ class Vendas extends CI_Controller
             echo json_encode(array('result' => true, 'fin_id' => $fin_id, 'mensagem' => 'Arquivo(s) anexado(s) com sucesso.'));
         }
     }
-
-    }
     
 
     public function excluirAnexo($id = null)
@@ -1745,7 +1830,7 @@ class Vendas extends CI_Controller
         $this->data['result_codComp'] = $this->vendas_model->get2('cod_compassion');
         $this->data['result_codIead'] = $this->vendas_model->get2('cod_assoc');
 
-        $this->data['anexos'] = $this->vendas_model->getAnexos($this->uri->segment(3));
+        $this->data['anexos'] = $this->vendas_model->getAnexos('anexos', $this->uri->segment(3));
         $this->data['view'] = 'vendas/visualizarVenda';
         $this->load->view('tema/topo', $this->data);
     }

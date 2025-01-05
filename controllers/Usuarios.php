@@ -277,7 +277,7 @@ class Usuarios extends CI_Controller {
         $this->load->model('permissoes_model');
         $this->data['permissoesID'] = $this->permissoes_model->getActive('permissoes','permissoes.idPermissao,permissoes.nome'); 
         $this->data['result_caixas'] = $this->usuarios_model->get2('caixas');
-        $this->data['tiposPermissoes'] = $this->usuarios_model->get2('permissoes_tipos');
+        $this->data['tiposPermissoes'] = $this->usuarios_model->get3('permissoes_tipos', 'tipo', 'id');
 
 		$this->data['view'] = 'usuarios/editarUsuario';
         $this->load->view('tema/topo',$this->data);

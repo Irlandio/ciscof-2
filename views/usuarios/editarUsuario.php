@@ -226,7 +226,7 @@ if(NULL == $arrpermissoes)
                                          
                                                             $cont = 0; $pC = 0;
                                                             foreach ($tiposPermissoes as $tp) {
-                                                                if($tp->tipo == 2){
+                                                                if($tp->tipo != 1){
                                                                     $bloco = '';
                                                                     if($cont % 4 == 0){
                                                                          echo '</tr><tr>';
@@ -243,9 +243,9 @@ if(NULL == $arrpermissoes)
                                                                             $pC = $permisaocONTA;
                                                                          }
                                                                     }
-                                                                    if($tp->nomePermissao == 'cPermissaoID')
+                                                                    if($tp->tipo == 3)
                                                                     { echo '<td colspan=3></td>';$cont+=3;
-                                                                        $bloco = "tempoPadrao";
+                                                                        $bloco = $tp->id == 38 ? "tempoPadrao" : "anexos";
                                                                     }
                                                                     ?>
                                                                     <td><label><input <?php

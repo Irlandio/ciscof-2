@@ -43,6 +43,15 @@ class Usuarios_model extends CI_Model {
         
         return $this->db->get($table)->result();
     }
+    
+    function get3($table, $fields, $fields2)
+    {
+
+        $this->db->order_by($fields);
+        $this->db->order_by($fields2);
+        return $this->db->get($table)->result();
+    }
+
     function getById($id){
         $this->db->select('usuarios.*, caixas.*');
         $this->db->where('idUsuarios',$id);
