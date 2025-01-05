@@ -277,6 +277,10 @@ if(NULL == $arrpermissoes)
 
                                                                     if($bloco == "tempoPadrao")
                                                                     {
+                                                                        echo '<TR><td colspan=4><H4>Permisões para adicionar lançamento SEM Anexo</H5></td>';
+                                                                    }
+                                                                    if($bloco == "anexos")
+                                                                    {
                                                                         echo '<TR><td colspan=4><H4>Permisões padrão de mês corrente</H5></td>';
                                                                     } 
 
