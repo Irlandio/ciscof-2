@@ -7,12 +7,12 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-    /*
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'u739483627_doar2',
-    */
+    
+	// 'hostname' => 'localhost',
+	// 'username' => 'root',
+	// 'password' => '',
+	// 'database' => 'u344891621_doar_beta',
+    
 	'hostname' => 'localhost',
 	'username' => 'u344891621_titobeca',
 	'password' => 'RebecA1980',

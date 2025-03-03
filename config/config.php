@@ -28,9 +28,9 @@ $config['app_version'] = '3.1.11';
 | a PHP script and you can easily do that on your own.
 |http://id-siscod.tk/sisgOs/
 */
-//$config['base_url'] = 'http://127.0.0.1:80/SISCOF/SISCOF-2/';//localhost
+// $config['base_url'] = '/Ciscof-aenpazfin-net/beta';//localhost
 
-$config['base_url'] = 'http://beta.ciscof-aenpazfin.net/';//localhost
+$config['base_url'] = 'http://beta.ciscof-aenpazfin.net/';//HOSTINGER
 
 /*
 |--------------------------------------------------------------------------

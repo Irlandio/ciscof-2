@@ -1,4 +1,5 @@
 # Ignorar a pasta config/
-config/
+config/config.php
+config/database.php
 # Ignorar a pasta config/
-.vscode/
+# .vscode/
