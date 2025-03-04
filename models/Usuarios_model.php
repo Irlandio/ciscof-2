@@ -43,7 +43,7 @@ class Usuarios_model extends CI_Model {
         
         return $this->db->get($table)->result();
     }
-
+    
     function get3($table, $field1, $field2)
     {
         // Define a ordenação específica para o campo 'tipo'
@@ -55,7 +55,6 @@ class Usuarios_model extends CI_Model {
         // Retorna os resultados
         return $this->db->get($table)->result();
     }
-
 
     function getById($id){
         $this->db->select('usuarios.*, caixas.*');

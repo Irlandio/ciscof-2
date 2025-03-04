@@ -455,7 +455,14 @@ class Vendas extends CI_Controller
                 $p_Origem = base_url() . 'index.php/vendas/adicionar';
                 //*******Verifica se o valor foi digitado adequadamente.
                 {
-                    if (formatoRealPntVrg($valorFin) == true) { //Verific se o numero digitado é com (.) milhar e (,) decimal
+                     if ($valorFin == 0.00) {
+                        
+                        echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=" . $p_Origem . "'>
+                                        <script type=\"text/javascript\">
+                                        alert(\"Nenhum valor de lançamento encontrado. Tente novamente! Linha: " . __LINE__ . "\");
+                                        </script>";
+                        exit;
+                    } else if (formatoRealPntVrg($valorFin) == true) { //Verific se o numero digitado é com (.) milhar e (,) decimal
                         //serve pra validar  valores acima e abaixo de 1000
                         //      echo "ERRO!  - <strong><td> ;Linha: ". __LINE__ . ", tente novamente!</td></strong><br/>"; 
                         $valorFinExibe  =    $valorFin;
@@ -1114,9 +1121,10 @@ class Vendas extends CI_Controller
                         break;
                 }
                 
-
-                $this->anexarDefinitivo($id_Maxaenp, $fin_id_form);
-                $this->excluirAnexosTemporarios($fin_id_form);
+                if($fin_id_form != null) {
+                    $this->anexarDefinitivo($id_Maxaenp, $fin_id_form);
+                    $this->excluirAnexosTemporarios($fin_id_form);
+                }
                 
                 $this->session->set_flashdata('success', 'Lançamento efetuado com sucesso! Conta ' . $contaNome . ' - ' . $tipoCont . ' doc ' . $num_Doc . ' doc Fiscal ' . $numDocFiscal . 'Razão social ' . $razaoSoc . ' ' . $descri . ' - tipo pag ' . $tipo_Pag . '. | <strong>Adicione o ANEXO do documento fiscal.</strong>');
                 redirect(base_url() . 'index.php/vendas/' . $paginaDestino);
@@ -1526,7 +1534,10 @@ class Vendas extends CI_Controller
 
     public function excluirAnexosTemporarios($id = null)
     {
-        $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui    
+        $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui
+        
+        // Define o limite de tempo: registros com mais de 1 hora
+        $limite_tempo = date('Y-m-d H:i:s', strtotime('-1 hour'));
         
         // Obtém os registros temporarios ou específicos ao ID
         $condicao_tempo = $id === null ? 'dataInsert <' : 'id1';

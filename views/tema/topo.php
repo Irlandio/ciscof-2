@@ -48,10 +48,17 @@
 <!--close-top-serch--> 
 
 <!--sidebar-menu-->
-
+<br>
 <div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-list"></i> Menu</a>
   <ul>
-
+<?php
+var_dump($this->permission->checkPermission($this->session->userdata('permissao'),'vVenda'));
+var_dump($this->permission->checkPermission($this->session->userdata('permissao'),'vCliente'));
+var_dump($this->permission->checkPermission($this->session->userdata('permissao'),'vProduto'));
+var_dump($this->permission->checkPermission($this->session->userdata('permissao'),'vServico'));
+var_dump($this->permission->checkPermission($this->session->userdata('permissao'),'vOs'));
+var_dump($this->session->userdata('permissao'));
+?>
 
     <li class="<?php if(isset($menuPainel)){echo 'active';};?>"><a href="<?php echo base_url()?>"><i class="icon icon-home"></i> <span>Home</span></a></li>
     

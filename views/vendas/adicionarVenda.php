@@ -95,10 +95,10 @@ if (isset($_SESSION['conta'])) {
     unset($_SESSION['senhaAdm']);
 
     // var_dump($_POST);
-    $contaA = null !== ($_POST["tab"])  ?   $_POST["tab"]  : '';
-    $contaA = null !== ($_POST["tipop"])  ?   $_POST["tipop"]  : '';
+    $contaA = isset($_POST["tab"]) && null !== ($_POST["tab"])  ?   $_POST["tab"]  : '';
+    $contaA = isset($_POST["tipop"]) && null !== ($_POST["tipop"])  ?   $_POST["tipop"]  : '';
     // **SE FOR ENTRADA E 518 A CONTA SERÁ 214
-    $contt = null !== ($_POST["conta"])  ?   $_POST["conta"]  : '';
+    $contt = isset($_POST["conta"]) && null !== ($_POST["conta"])  ?   $_POST["conta"]  : '';
     if ($contt != '') {
         if ($_POST['conta'] == 5 && $_POST['tipoES'] == 1 && $_POST['tipCont'] != 'Suporte') $conta = 4;
         else $conta = $_POST['conta'];
@@ -243,6 +243,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 </span>
                 <ul class="nav nav-tabs">
                     <li class="active" id="tabDetalhes"><a href="#tab1" data-toggle="tab">Detalhes do lançamento</a></li>
+                    <li class="active" id="obs"><a href="#tab1" data-toggle="tab"><font color=red>Você poderá anexar arquivos nesta página ao preencher todos campos</font></a></li>
                 </ul>
             </div>
 
@@ -333,25 +334,23 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 <p class="cod_Comp">
                                                     <label for="compassion">Código Compassion *</label>
                                                     <select id="cod_Comp" name="cod_Comp">
-                                                        <option value=NULL>Opção financeira Compassion</option>
+                                                        <option value="">Opção financeira Compassion</option>
                                                         <?php
                                                         if ($tipoES == 0) {
                                                             foreach ($result_codComp as $rcodComp) {
                                                                 if ($rcodComp->ent_SaiComp == 0 && $rcodComp->codigoNovo == 1) { ?>
                                                                     <option value="<?php echo $rcodComp->cod_Comp ?>">
-                                                                        <?php echo ' ' . $rcodComp->cod_Comp . " |
-                                                " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
+                                                                        <?php echo ' ' . $rcodComp->cod_Comp . " | " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
                                                                 <?php } else {
                                                                 }
                                                             }
                                                         } else 
-                                    if ($tipoES == 1) {
+                                                        if ($tipoES == 1) {
                                                             foreach ($result_codComp as $rcodComp) {
                                                                 if ($rcodComp->ent_SaiComp == 1 && $rcodComp->codigoNovo == 1) {
                                                                 ?>
                                                                     <option value="<?php echo $rcodComp->cod_Comp ?>">
-                                                                        <?php echo ' ' . $rcodComp->cod_Comp . " |
-                                                    " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
+                                                                        <?php echo ' ' . $rcodComp->cod_Comp . " | " . $rcodComp->descricao . " | " . $rcodComp->area_Cod . ' ' ?></option>
                                                         <?php } else {
                                                                 }
                                                             }
@@ -371,7 +370,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                                 <label for="cod_ass">Código IEADALPE *</label>
                                                 <select id="cod_Ass" name="cod_Ass">
-                                                    <option value=NULL>Oopção Financeira IEADALPE</option>
+                                                    <option value="">Oopção Financeira IEADALPE</option>
                                                     <option value="<?php echo $cod_A ?>">
                                                         <?php echo $cod_A . " | " . $descricao_A ?></option>
                                                     <?php
@@ -500,8 +499,8 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                         <div id="blAux6">
                                             <p class="VALOR">
-                                                <label for="valor">Valor do lançamento</label>
-                                                <span class="style1">* R$ </span><input text-align="right" name="valorFin" class="money" value="<?php echo $valorFin ?>">
+                                                <label for="valor">Valor do lançamento 502</label>
+                                                <span class="style1">* R$ </span><input text-align="right" name="valorFin" class="money" value="<?php echo $valorFin ?>" required>
                                                 <font color=red> **</font>
                                             </p>
                                             <p class="Historico">
@@ -640,7 +639,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                         </td>
                                                         <td>
                                                             <?php $valorPre = 'valorPre' . $contar ?>
-                                                            * R$ <input name="<?php echo $valorPre ?>" class="money" value="<?php echo $_SESSION[$valorPre] ?>" />
+                                                            * R$ <input id="<?php echo $valorPre ?>"  name="<?php echo $valorPre ?>" class="money" value="<?php echo $_SESSION[$valorPre] ?>" />
                                                         </td>
                                                         <td>
                                                             <?php $entraSai = 'entraSai' . $contar ?>
@@ -666,10 +665,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <tr>
                                                 <td></td>
-                                                <td>VALOR TOTAL</td>
+                                                <td>VALOR TOTAL S</td>
                                                 <td>
                                                     <span class="style1">* R$ </span>
-                                                    <input name="valtotal" readonly><br>
+                                                    <input id="valtotal"  name="valtotal" readonly><br>
                                                 </td>
                                             </tr>
                                         </table>
@@ -1104,8 +1103,8 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <div id="blAux6">
                                                 <p class="VALOR">
-                                                    <label for="valor">Valor do lançamento</label>
-                                                    <span class="style1">* R$ </span><input text-align="right" id="valorFin" name="valorFin" class="money">
+                                                    <label for="valor">Valor do lançamento 1106</label>
+                                                    <span class="style1">* R$ </span><input text-align="right" id="valorFin" name="valorFin" class="money" required>
                                                     <font color=red> **</font>
                                                 </p>
                                                 <p class="Historico">
@@ -1132,7 +1131,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 <font color=red> *</font>
                                             </p>
                                         </div>
-                                        <input type="hidden" id="id_form" name="fin_id" value="" />
+                                        <input type="text" id="id_form" name="fin_id" value="" />
 
                                     <?php } ?>
 
@@ -1204,7 +1203,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                     </td>
                                                     <td>
                                                         <?php $valorPre = 'valorPre' . $contar ?>
-                                                        <input name="<?php echo $valorPre ?>" class="money" placeholder="<?php echo $valorPre ?>" />
+                                                        <input id="<?php echo $valorPre ?>" name="<?php echo $valorPre ?>" class="money" placeholder="<?php echo $valorPre ?>" />
                                                     </td>
                                                     <td>
                                                         <?php $entraSai = 'entraSai' . $contar ?>
@@ -1222,10 +1221,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <tr>
                                                 <td></td>
-                                                <td>VALOR TOTAL</td>
+                                                <td>VALOR TOTAL C</td>
                                                 <td>
                                                     <span class="style1">* R$ </span>
-                                                    <input name="valtotal" readonly><br>
+                                                    <input id="valtotal"  name="valtotal" readonly=""><br>
                                                 </td>
                                             </tr>
                                         </table>
@@ -1387,6 +1386,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                     <!--Anexos-->
                     <div class="tab-pane" id="tab2">
                         <div class="span12 well" style="padding: 1%; margin-left: 0" id="form-anexos">
+                        <font color=#458B74 size=2>- Ao anexar ou excluir um arquivo já anexado CLICK em -Atualizar Anexos- para exibir os arquivos anexados.</font>
                             <div class="span12" style="padding: 1%; margin-left: 0">
 
                                 <button id="btnBuscarAnexos" class="span12 btn btn-primary" style="align: center">
@@ -1406,8 +1406,8 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
 
                                     </div>
-                                    <input type="hidden" id="fin_id_form" name="fin_id" value="" />
-                                    <input type="hidden" id="servico" name="servico" value="anexoTemp" />
+                                    <input type="text" id="fin_id_form" name="fin_id" value="" />
+                                    <input type="text" id="servico" name="servico" value="anexoTemp" />
 
 
                                 </form>
@@ -1428,9 +1428,8 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             <div id="blRodape">
                 <h5 text-align=center>Utilidade pública federal</h5>
 
-            </div>
-            <font color=red>( ** )</font>
-            <font color=red>Obs: </font>
+            </div><br />
+            <h5 text-align=center>Observações de preenchimento</h5>
             <font color=#458B74 size=2>Padrão para preenchimento de valores
                 99.999,99 ou 99999,99 ou 99999.99 ou 99999
             </font><br />
@@ -1500,7 +1499,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 cliente: {
                     required: 'Campo Requerido.'
                 },
-                tecnico: {
+                valorFin: {
                     required: 'Campo Requerido.'
                 },
                 dataVenda: {
@@ -1524,7 +1523,6 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
         // Obtém o valor do elemento com o ID `fin_id_form`
         let fin_id_form = $("#fin_id_form");
-        let fin_id_form_v = $("#fin_id_form").val();
 
         $("#btnBuscarAnexos").on("click", function() {
             // Obtém o valor do elemento com o ID `fin_id_form`
@@ -1578,9 +1576,9 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             let descri = $("textarea[name='descri']").val();
 
             // Verifica se todos os campos têm mais de 3 caracteres e valorFin > 0
-            let camposPreenchidos = 
-                codComp && codComp.length > 3 &&
-                codAss && codAss.length > 3 &&
+            let camposPreenchidos =
+                codComp &&
+                codAss &&
                 numeroDoc && numeroDoc.length > 3 &&
                 numDocFiscal && numDocFiscal.length > 3 &&
                 dataVenda && dataVenda.length > 3 &&
@@ -1588,15 +1586,19 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 descri && descri.length > 3;
             let condicaoContaES = conta > 3 && conta < 9 && tipoES == 0 ? 1 : 0;
 
+            var fin_id_form_v = $("#fin_id_form").val();
             // Verifica se o valor está vazio
-            if (!fin_id_form_v && camposPreenchidos) {
+            if (!fin_id_form_v && camposPreenchidos && !permissaoAnexos) {
                 // Gera um novo ID e atribui ao campo
                 fin_id_form.val(gerarIdForm());
                 $("#id_form").val(fin_id_form.val());
             }
-            
+
             if (permissaoAnexos) {
-                console.log('Tem permissaoAnexos');
+                // console.log('Tem permissaoAnexos');
+                console.log('camposPreenchidos: '+camposPreenchidos);
+                console.log('camposPreenchidos: codComp '+codComp+' -codAss '+codAss+' -numeroDoc '
+                +numeroDoc+' -numDocFiscal '+numDocFiscal+' -dataVenda '+dataVenda+' -razaoSoc '+razaoSoc+' -descri '+descri);
                 desabilitarBotaoContinuarSemAnexo();
                 $("#form-anexos").hide();
                 // Apenas verifica os campos preenchidos
@@ -1607,6 +1609,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 }
             } else {
                 console.log('Não tem permissaoAnexos');
+                console.log('camposPreenchidos'+camposPreenchidos);
                 // Verifica campos preenchidos e existência de anexos
                 if (camposPreenchidos) {
                     // Verifica se é conta Compassion e saída
@@ -1641,7 +1644,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             $("#btnContinuar").prop('disabled', true)
                 .removeClass('btn-success')
                 .addClass('btn-warning')
-                .html('<i class="icon-share-alt icon-white"></i> Preencha tudo e Anexar antes de continuar');
+                .html('<i class="icon-share-alt icon-white"></i> Preencher tudo e Anexar antes de continuar');
         }
 
         // Função para desabilitar o botão "Continuar"
@@ -1825,8 +1828,31 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             }
         });
     });
-
-
+    
+    // Adiciona evento para os campos cujo ID começa com 'valorPre'
+    $(document).on('blur', '[id^="valorPre"]', function () {
+        console.log('Campo saiu do foco:', $(this).attr('id'), 'Valor:', $(this).val());
+        atualizarValorTotal(); // Atualiza o total sempre que um campo perde o foco
+    });
+    
+    // Função para atualizar o valor total
+    function atualizarValorTotal() {
+        console.log('Atualizando o valor total...');
+        let total = 0; // Reinicia o total a cada execução
+    
+        // Itera por todos os campos cujo ID começa com "valorPre"
+        $('[id^="valorPre"]').each(function () {
+            const valor = parseFloat($(this).val().replace(',', '.')) || 0; // Converte para número
+            total += valor; // Soma o valor atual ao total
+        });
+    
+        // Atualiza o campo de total
+        const campoTotal = $('#valtotal');
+        if (campoTotal.length > 0) {
+            campoTotal.val(total.toFixed(2).replace('.', ',')); // Formata como moeda
+            console.log('Total atualizado para:', campoTotal.val());
+        }
+    }
 
     function buscarAnexos(fin_id) {
         // Mostra um indicador de carregamento
