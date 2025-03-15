@@ -451,12 +451,12 @@ class Vendas extends CI_Controller
                     $senhaAdm  = $this->input->post('senhaAdm');
                 }
                 $fin_id_form = $this->input->post('fin_id');
-                
+
                 $p_Origem = base_url() . 'index.php/vendas/adicionar';
                 //*******Verifica se o valor foi digitado adequadamente.
                 {
-                     if ($valorFin == 0.00) {
-                        
+                    if ($valorFin == 0.00) {
+
                         echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=" . $p_Origem . "'>
                                         <script type=\"text/javascript\">
                                         alert(\"Nenhum valor de lançamento encontrado. Tente novamente! Linha: " . __LINE__ . "\");
@@ -960,9 +960,9 @@ class Vendas extends CI_Controller
             {
                 $paginaDestino = "adicionar/";
                 //****** Resgata o ID do lançamento feito
-                
+
                 $id_Maxaenp = $this->vendas_model->getUltimoId('aenpfin', 'id_fin');
-                
+
                 //******busca do ultimo registro com o saldo do mês marcado *********
                 //                    echo '<br> Caixa '.(int)$caixa.'<br>';
                 if (($caixa == 4 || $caixa == 5) && $dataF > $_SESSION['DATA_FIM_BR518']) {
@@ -1120,12 +1120,12 @@ class Vendas extends CI_Controller
                         $contaNome = "CEF 1948-4";
                         break;
                 }
-                
-                if($fin_id_form != null) {
+
+                if ($fin_id_form != null) {
                     $this->anexarDefinitivo($id_Maxaenp, $fin_id_form);
                     $this->excluirAnexosTemporarios($fin_id_form);
                 }
-                
+
                 $this->session->set_flashdata('success', 'Lançamento efetuado com sucesso! Conta ' . $contaNome . ' - ' . $tipoCont . ' doc ' . $num_Doc . ' doc Fiscal ' . $numDocFiscal . 'Razão social ' . $razaoSoc . ' ' . $descri . ' - tipo pag ' . $tipo_Pag . '. | <strong>Adicione o ANEXO do documento fiscal.</strong>');
                 redirect(base_url() . 'index.php/vendas/' . $paginaDestino);
                 echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=" . base_url() . "index.php/vendas/'.$paginaDestino>
@@ -1497,23 +1497,23 @@ class Vendas extends CI_Controller
         $this->load->view('tema/topo', $this->data);
     }
     public function buscarAnexos()
-    {    
+    {
         $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui
         // Obtém o ID do formulário (fin_id) enviado pela requisição AJAX
         $fin_id = $this->input->post('fin_id');
         $tabela = $this->input->post('tabela');
-    
+
         // Busca os anexos no banco de dados
         $anexos = $this->Vendas_model->getAnexos($tabela, $fin_id);
-        
-            
+
+
         // $campos = [
         //     'idAnexos' => $field = $tabela == 'auxiliarTab' ? $anexo['id1'] : $anexo['idAnexos'],
         //     'thumb' =>  $field = $tabela == 'auxiliarTab' ? $anexo['descricao1'] : $anexo['thumb'],
         //     'anexo' => $field = $tabela == 'auxiliarTab' ? $anexo['nome1'] : $anexo['anexo'],
         //     'url' => base_url() . 'assets/anexos/' // Ajuste o caminho conforme necessário
         // ];
-        
+
         // Monta a resposta JSON
         if (!empty($anexos)) {
             $data = [];
@@ -1525,7 +1525,7 @@ class Vendas extends CI_Controller
                     'url'       => base_url() . 'assets/anexos/' // Ajuste o caminho conforme necessário
                 ];
             }
-    
+
             echo json_encode(['result' => true, 'anexos' => $data]);
         } else {
             echo json_encode(['result' => false, 'message' => 'Nenhum anexo encontrado.']);
@@ -1535,15 +1535,15 @@ class Vendas extends CI_Controller
     public function excluirAnexosTemporarios($id = null)
     {
         $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui
-        
+
         // Define o limite de tempo: registros com mais de 1 hora
         $limite_tempo = date('Y-m-d H:i:s', strtotime('-1 hour'));
-        
+
         // Obtém os registros temporarios ou específicos ao ID
         $condicao_tempo = $id === null ? 'dataInsert <' : 'id1';
         $valor_condicao = $id === null ? $limite_tempo : $id;
         $registros = $this->Vendas_model->get4('auxiliarTab', $condicao_tempo, $valor_condicao);
-        
+
         if (!$registros) {
             $response = [
                 'success' => false,
@@ -1552,22 +1552,22 @@ class Vendas extends CI_Controller
             echo json_encode($response);
             return;
         }
-    
+
         // Exclui os registros no banco de dados
         $excluido = $this->Vendas_model->excluirAnexosTemporarios($id);
-        
+
         // Remove os arquivos relacionados
         $erros = [];
         foreach ($registros as $anexo) {
             $caminho_arquivo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $anexo->nome1;
-    
+
             // Tenta excluir o arquivo principal
             if (file_exists($caminho_arquivo)) {
                 if (!unlink($caminho_arquivo)) {
                     $erros[] = "Erro ao excluir o arquivo: " . $caminho_arquivo;
                 }
             }
-    
+
             // Tenta excluir o thumbnail, se existir
             if ($anexo->descricao1) {
                 $caminho_thumb = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $anexo->descricao1;
@@ -1578,7 +1578,7 @@ class Vendas extends CI_Controller
                 }
             }
         }
-    
+
         if ($excluido && empty($erros)) {
             $response = [
                 'success' => true,
@@ -1604,73 +1604,73 @@ class Vendas extends CI_Controller
     }
 
 
-public function anexarDefinitivo($id_fin, $id_temp)
-{
-    // Seleciona os registros da tabela auxiliarTab com base no id_temp
-    $this->db->where('id1', $id_temp);
-    $query = $this->db->get('auxiliarTab');
-    $anexos_temp = $query->result();
+    public function anexarDefinitivo($id_fin, $id_temp)
+    {
+        // Seleciona os registros da tabela auxiliarTab com base no id_temp
+        $this->db->where('id1', $id_temp);
+        $query = $this->db->get('auxiliarTab');
+        $anexos_temp = $query->result();
 
-    if (!$anexos_temp) {
-        return false; // Nenhum registro encontrado para o id_temp
-    }
-
-    // Obtém o número atual de anexos associados a este $id_fin
-    $this->db->where('fin_id', $id_fin);
-    $qtd_anexos = $this->db->count_all_results('anexos');
-    $sequencia = $qtd_anexos + 1;
-
-    foreach ($anexos_temp as $anexo) {
-        // Define o novo nome do arquivo
-        $extensao = pathinfo($anexo->nome1, PATHINFO_EXTENSION);
-        $novo_nome = $id_fin . 'Anexo_' . $sequencia . '.' . $extensao;
-
-        // Renomeia o arquivo físico no diretório
-        $caminho_antigo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $anexo->nome1;
-        $caminho_novo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $novo_nome;
-
-        if (file_exists($caminho_antigo)) {
-            rename($caminho_antigo, $caminho_novo);
+        if (!$anexos_temp) {
+            return false; // Nenhum registro encontrado para o id_temp
         }
 
-        // Renomeia o thumbnail, se existir
-        if (!empty($anexo->descricao1)) {
-            $thumb_antigo = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $anexo->descricao1;
-            $thumb_novo = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . 'thumb_' . $novo_nome;
+        // Obtém o número atual de anexos associados a este $id_fin
+        $this->db->where('fin_id', $id_fin);
+        $qtd_anexos = $this->db->count_all_results('anexos');
+        $sequencia = $qtd_anexos + 1;
 
-            if (file_exists($thumb_antigo)) {
-                rename($thumb_antigo, $thumb_novo);
+        foreach ($anexos_temp as $anexo) {
+            // Define o novo nome do arquivo
+            $extensao = pathinfo($anexo->nome1, PATHINFO_EXTENSION);
+            $novo_nome = $id_fin . 'Anexo_' . $sequencia . '.' . $extensao;
+
+            // Renomeia o arquivo físico no diretório
+            $caminho_antigo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $anexo->nome1;
+            $caminho_novo = $anexo->descricao2 . DIRECTORY_SEPARATOR . $novo_nome;
+
+            if (file_exists($caminho_antigo)) {
+                rename($caminho_antigo, $caminho_novo);
             }
-        } else {
-            $thumb_novo = null;
+
+            // Renomeia o thumbnail, se existir
+            if (!empty($anexo->descricao1)) {
+                $thumb_antigo = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $anexo->descricao1;
+                $thumb_novo = $anexo->descricao2 . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . 'thumb_' . $novo_nome;
+
+                if (file_exists($thumb_antigo)) {
+                    rename($thumb_antigo, $thumb_novo);
+                }
+            } else {
+                $thumb_novo = null;
+            }
+
+            // Prepara os dados para inserir na tabela anexos
+            $data = array(
+                'fin_id' => $id_fin,
+                'anexo'  => $novo_nome,
+                'url'    => $anexo->nome2,
+                'thumb'  => $thumb_novo ? 'thumb_' . $novo_nome : null,
+                'path'   => $anexo->descricao2,
+            );
+
+            // Insere na tabela anexos
+            $this->db->insert('anexos', $data);
+
+            // Incrementa a sequência para o próximo arquivo
+            $sequencia++;
         }
 
-        // Prepara os dados para inserir na tabela anexos
-        $data = array(
-            'fin_id' => $id_fin,
-            'anexo'  => $novo_nome,
-            'url'    => $anexo->nome2,
-            'thumb'  => $thumb_novo ? 'thumb_' . $novo_nome : null,
-            'path'   => $anexo->descricao2,
-        );
+        // Após inserir, deleta os registros da tabela auxiliarTab
+        $this->db->where('id1', $id_temp);
+        $this->db->delete('auxiliarTab');
 
-        // Insere na tabela anexos
-        $this->db->insert('anexos', $data);
-
-        // Incrementa a sequência para o próximo arquivo
-        $sequencia++;
+        return true;
     }
 
-    // Após inserir, deleta os registros da tabela auxiliarTab
-    $this->db->where('id1', $id_temp);
-    $this->db->delete('auxiliarTab');
 
-    return true;
-}
-
-    
-   public function anexar()
-    { 
+    public function anexar()
+    {
         $this->load->model('Vendas_model'); // Certifique-se de carregar o modelo aqui
         $this->load->library('upload');
         $this->load->library('image_lib');
@@ -1779,7 +1779,7 @@ public function anexarDefinitivo($id_fin, $id_temp)
             echo json_encode(array('result' => true, 'fin_id' => $fin_id, 'mensagem' => 'Arquivo(s) anexado(s) com sucesso.'));
         }
     }
-    
+
 
     public function excluirAnexo($id = null)
     {

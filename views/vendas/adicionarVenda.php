@@ -243,7 +243,9 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 </span>
                 <ul class="nav nav-tabs">
                     <li class="active" id="tabDetalhes"><a href="#tab1" data-toggle="tab">Detalhes do lançamento</a></li>
-                    <li class="active" id="obs"><a href="#tab1" data-toggle="tab"><font color=red>Você poderá anexar arquivos nesta página ao preencher todos campos</font></a></li>
+                    <li class="active" id="obs"><a href="#tab1" data-toggle="tab">
+                            <font color=red>Você poderá anexar arquivos nesta página ao preencher todos campos</font>
+                        </a></li>
                 </ul>
             </div>
 
@@ -334,7 +336,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 <p class="cod_Comp">
                                                     <label for="compassion">Código Compassion *</label>
                                                     <select id="cod_Comp" name="cod_Comp">
-                                                        <option value="">Opção financeira Compassion</option>
+                                                        <option value=NULL>Opção financeira Compassion</option>
                                                         <?php
                                                         if ($tipoES == 0) {
                                                             foreach ($result_codComp as $rcodComp) {
@@ -370,7 +372,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                                 <label for="cod_ass">Código IEADALPE *</label>
                                                 <select id="cod_Ass" name="cod_Ass">
-                                                    <option value="">Oopção Financeira IEADALPE</option>
+                                                    <option value=NULL>Oopção Financeira IEADALPE</option>
                                                     <option value="<?php echo $cod_A ?>">
                                                         <?php echo $cod_A . " | " . $descricao_A ?></option>
                                                     <?php
@@ -499,7 +501,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                         <div id="blAux6">
                                             <p class="VALOR">
-                                                <label for="valor">Valor do lançamento 502</label>
+                                                <label for="valor">Valor do lançamento</label>
                                                 <span class="style1">* R$ </span><input text-align="right" name="valorFin" class="money" value="<?php echo $valorFin ?>" required>
                                                 <font color=red> **</font>
                                             </p>
@@ -507,13 +509,13 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 <label for="razao">
                                                     <font color=red>Histórico</font>
                                                 </label>
-                                                <input class="span11" name="razaoSoc" type="text" value="<?php echo $razaoSoc ?>" maxlength=45>
+                                                <input class="span11" name="razaoSoc" type="text" value="<?php echo $razaoSoc ?>" maxlength=150>
                                                 <font color=red> *</font>
 
                                             </p>
                                             <p class="descri">
                                                 <label for="descri">Descrição</label>
-                                                <textarea name="descri" type="text" maxlength=100><?php echo $descri ?></textarea>
+                                                <textarea name="descri" type="text" maxlength=150><?php echo $descri ?></textarea>
                                                 <font color=red> *</font>
                                             </p>
                                         </div>
@@ -590,7 +592,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                         </td>
                                                         <td>
                                                             <?php $valorPre = 'valorPre' . $contar ?>
-                                                            <input name="<?php echo $valorPre ?>" class="money" placeholder="<?php echo $valorPre ?>" />
+                                                            <input id="<?php echo $valorPre ?>" name="<?php echo $valorPre ?>" class="money" placeholder="<?php echo $valorPre ?>" />
                                                         </td>
                                                         <td>
                                                             <?php $entraSai = 'entraSai' . $contar ?>
@@ -639,7 +641,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                         </td>
                                                         <td>
                                                             <?php $valorPre = 'valorPre' . $contar ?>
-                                                            * R$ <input id="<?php echo $valorPre ?>"  name="<?php echo $valorPre ?>" class="money" value="<?php echo $_SESSION[$valorPre] ?>" />
+                                                            * R$ <input id="<?php echo $valorPre ?>" name="<?php echo $valorPre ?>" class="money" value="<?php echo $_SESSION[$valorPre] ?>" />
                                                         </td>
                                                         <td>
                                                             <?php $entraSai = 'entraSai' . $contar ?>
@@ -665,10 +667,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <tr>
                                                 <td></td>
-                                                <td>VALOR TOTAL S</td>
+                                                <td>VALOR TOTAL</td>
                                                 <td>
                                                     <span class="style1">* R$ </span>
-                                                    <input id="valtotal"  name="valtotal" readonly><br>
+                                                    <input id="valtotal" name="valtotal" readonly><br>
                                                 </td>
                                             </tr>
                                         </table>
@@ -878,7 +880,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                                 <input id="dataVenda" class="span12 datepicker" type="Text" name="dataVenda" value="<?php echo date('d/m/Y'); ?>" /><br />
                                                                 <input text-align="right" name="valorFin" class="money">
                                                             </td>
-                                                            <td><input name="razaoSoc" type="text" placeholder="Nome da Razão Social." required maxlength=45 onChange="javascript:this.value=this.value.toUpperCase();">
+                                                            <td><input name="razaoSoc" type="text" placeholder="Nome da Razão Social." required maxlength=100 onChange="javascript:this.value=this.value.toUpperCase();">
                                                                 <textarea name="descri" id="descri" type="text" placeholder="- descrição." maxlength=100></textarea>
                                                             </td>
                                                             <td><input name="tipoPag" type="radio" value="trans" CHECKED>Transferência
@@ -1103,7 +1105,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <div id="blAux6">
                                                 <p class="VALOR">
-                                                    <label for="valor">Valor do lançamento 1106</label>
+                                                    <label for="valor">Valor do lançamento</label>
                                                     <span class="style1">* R$ </span><input text-align="right" id="valorFin" name="valorFin" class="money" required>
                                                     <font color=red> **</font>
                                                 </p>
@@ -1111,13 +1113,13 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                     <label for="raz">
                                                         <font color=red>Histórico</font>
                                                     </label>
-                                                    <input class="span11" name="razaoSoc" type="text" placeholder="Nome da Razão Social." maxlength=60>
+                                                    <input class="span11" name="razaoSoc" type="text" placeholder="Nome da Razão Social." maxlength=100>
                                                     <font color=red> *</font>
 
                                                 </p>
                                                 <p class="descri">
                                                     <label for="descri">Descrição</label>
-                                                    <textarea name="descri" id="descri" type="text" placeholder="- descrição." maxlength=100></textarea>
+                                                    <textarea name="descri" id="descri" type="text" placeholder="- descrição." maxlength=150></textarea>
                                                     <font color=red> *</font>
                                                 </p>
                                             </div>
@@ -1131,7 +1133,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                                                 <font color=red> *</font>
                                             </p>
                                         </div>
-                                        <input type="text" id="id_form" name="fin_id" value="" />
+                                        <input type="hidden" id="id_form" name="fin_id" value="" />
 
                                     <?php } ?>
 
@@ -1221,10 +1223,10 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
                                             <tr>
                                                 <td></td>
-                                                <td>VALOR TOTAL C</td>
+                                                <td>VALOR TOTAL</td>
                                                 <td>
                                                     <span class="style1">* R$ </span>
-                                                    <input id="valtotal"  name="valtotal" readonly=""><br>
+                                                    <input id="valtotal" name="valtotal" readonly><br>
                                                 </td>
                                             </tr>
                                         </table>
@@ -1386,7 +1388,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                     <!--Anexos-->
                     <div class="tab-pane" id="tab2">
                         <div class="span12 well" style="padding: 1%; margin-left: 0" id="form-anexos">
-                        <font color=#458B74 size=2>- Ao anexar ou excluir um arquivo já anexado CLICK em -Atualizar Anexos- para exibir os arquivos anexados.</font>
+                            <font color=#458B74 size=2>- Ao anexar ou excluir um arquivo já anexado CLICK em -Atualizar Anexos- para exibir os arquivos anexados.</font>
                             <div class="span12" style="padding: 1%; margin-left: 0">
 
                                 <button id="btnBuscarAnexos" class="span12 btn btn-primary" style="align: center">
@@ -1406,8 +1408,8 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
 
                                     </div>
-                                    <input type="text" id="fin_id_form" name="fin_id" value="" />
-                                    <input type="text" id="servico" name="servico" value="anexoTemp" />
+                                    <input type="hidden" id="fin_id_form" name="fin_id" value="" />
+                                    <input type="hidden" id="servico" name="servico" value="anexoTemp" />
 
 
                                 </form>
@@ -1499,7 +1501,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 cliente: {
                     required: 'Campo Requerido.'
                 },
-                valorFin: {
+                tecnico: {
                     required: 'Campo Requerido.'
                 },
                 dataVenda: {
@@ -1596,9 +1598,9 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
 
             if (permissaoAnexos) {
                 // console.log('Tem permissaoAnexos');
-                console.log('camposPreenchidos: '+camposPreenchidos);
-                console.log('camposPreenchidos: codComp '+codComp+' -codAss '+codAss+' -numeroDoc '
-                +numeroDoc+' -numDocFiscal '+numDocFiscal+' -dataVenda '+dataVenda+' -razaoSoc '+razaoSoc+' -descri '+descri);
+                // console.log('camposPreenchidos: '+camposPreenchidos);
+                // console.log('camposPreenchidos: codComp '+codComp+' -codAss '+codAss+' -numeroDoc '
+                // +numeroDoc+' -numDocFiscal '+numDocFiscal+' -dataVenda '+dataVenda+' -razaoSoc '+razaoSoc+' -descri '+descri);
                 desabilitarBotaoContinuarSemAnexo();
                 $("#form-anexos").hide();
                 // Apenas verifica os campos preenchidos
@@ -1609,7 +1611,7 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
                 }
             } else {
                 console.log('Não tem permissaoAnexos');
-                console.log('camposPreenchidos'+camposPreenchidos);
+                // console.log('camposPreenchidos'+camposPreenchidos);
                 // Verifica campos preenchidos e existência de anexos
                 if (camposPreenchidos) {
                     // Verifica se é conta Compassion e saída
@@ -1828,24 +1830,43 @@ echo  "<strong>CISCOF - Lançamento para conta - " . $contaNome . " | " . $usuar
             }
         });
     });
-    
-    // Adiciona evento para os campos cujo ID começa com 'valorPre'
-    $(document).on('blur', '[id^="valorPre"]', function () {
-        console.log('Campo saiu do foco:', $(this).attr('id'), 'Valor:', $(this).val());
-        atualizarValorTotal(); // Atualiza o total sempre que um campo perde o foco
+
+    // Adiciona evento para os campos cujo ID começa com 'valorPre' (evento blur)
+    $(document).on('blur', '[id^="valorPre"]', function() {
+        console.log('Campo valorPre saiu do foco:', $(this).attr('id'), 'Valor:', $(this).val());
+        atualizarValorTotal(); // Atualiza o total ao sair do campo valorPre
     });
-    
+
+    // Adiciona evento para os campos cujo ID começa com 'entraSai' (evento change)
+    $(document).on('change', '[id^="entraSai"]', function() {
+        console.log('Campo entraSai alterado:', $(this).attr('id'), 'Valor selecionado:', $(this).val());
+        atualizarValorTotal(); // Atualiza o total quando entraSai for alterado
+    });
+
+
     // Função para atualizar o valor total
     function atualizarValorTotal() {
         console.log('Atualizando o valor total...');
         let total = 0; // Reinicia o total a cada execução
-    
+
         // Itera por todos os campos cujo ID começa com "valorPre"
-        $('[id^="valorPre"]').each(function () {
+        $('[id^="valorPre"]').each(function() {
+            const idCampo = $(this).attr('id'); // Exemplo: "valorPre1"
+            const index = idCampo.replace('valorPre', ''); // Extrai o índice (ex.: "1")
+
             const valor = parseFloat($(this).val().replace(',', '.')) || 0; // Converte para número
-            total += valor; // Soma o valor atual ao total
+
+            // Busca o campo correspondente "entraSaiX"
+            const entraSai = $(`#entraSai${index}`).val();
+
+            // Soma se "entraSai" for 1, subtrai se for 0
+            if (entraSai == "1") {
+                total += valor;
+            } else if (entraSai == "0") {
+                total -= valor;
+            }
         });
-    
+
         // Atualiza o campo de total
         const campoTotal = $('#valtotal');
         if (campoTotal.length > 0) {

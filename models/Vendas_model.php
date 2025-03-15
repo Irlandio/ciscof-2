@@ -312,14 +312,15 @@ class Vendas_model extends CI_Model
 
         return $this->db->insert('auxiliarTab');
     }
-    
+
     public function excluirAnexosTemporarios($id = null)
     {
-        if($id != null) {
-        $this->db->where('id1', $id);}
+        if ($id != null) {
+            $this->db->where('id1', $id);
+        }
         return $this->db->delete('auxiliarTab');
     }
-    
+
 
     public function anexar($fin_id, $anexo, $url, $thumb, $path)
     {
@@ -356,16 +357,16 @@ class Vendas_model extends CI_Model
         if (empty($tabela)) {
             return null;
         }
-    
+
         // Seleciona o maior ID da tabela
         $this->db->select_max($fieldID);
         $query = $this->db->get($tabela);
-    
+
         // Verifica se há resultados e retorna o ID
         if ($query->num_rows() > 0) {
             return $query->row()->$fieldID;
         }
-    
+
         // Retorna null caso não haja registros
         return null;
     }
